@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Story Splitting Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .remove-story-button {
+            transition: color 0.15s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 bg-blue-600 text-white rounded-lg shadow-xl">
+            <h1 class="text-2xl sm:text-3xl font-bold text-center sm:text-left mb-2 sm:mb-0">User Story Splitting Practice</h1>
+            <div class="text-lg sm:text-xl font-semibold">Score: <span id="score" class="bg-white text-blue-700 px-3 py-1 rounded-md">0</span></div>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <div class="lg:w-2/5 bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                <h2 class="text-xl font-semibold mb-3 text-blue-700">1. Select a Pattern</h2>
+                <select id="pattern-select" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm">
+                    </select>
+
+                <h3 class="text-lg font-semibold mb-1 text-blue-700">Pattern Description:</h3>
+                <div id="pattern-description-container" class="h-40 overflow-y-auto p-3 border rounded-md bg-gray-50 mb-4 text-sm text-gray-700 shadow-inner">
+                    <p id="pattern-description">Select a pattern to see its description.</p>
+                </div>
+                
+
+                <h2 class="text-xl font-semibold mb-3 text-blue-700">2. User Story to Split</h2>
+                <div id="story-to-split-container" class="bg-yellow-100 p-4 rounded-lg border border-yellow-300 shadow-sm mb-4">
+                    <p id="story-to-split" class="text-gray-800 text-sm">Select a pattern to see the example story.</p>
+                </div>
+                <button id="hint-button" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    Show Hint
+                </button>
+                <div id="hint-area" class="mt-3 p-3 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg hidden text-sm shadow-sm"></div>
+            </div>
+
+            <div class="lg:w-3/5 bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                <h2 class="text-xl font-semibold mb-3 text-blue-700">3. Split the Story</h2>
+                <p class="text-sm text-gray-600 mb-4">Based on the selected pattern, split the user story into smaller stories. Enter each new story in a box below.</p>
+
+                <div id="split-stories-input-area" class="space-y-3 mb-4">
+                    </div>
+                <button id="add-story-button" class="mb-5 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out text-sm">
+                    Add Another Story Box
+                </button>
+                <button id="submit-split-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out text-lg">
+                    Submit Split & Get Feedback
+                </button>
+
+                <h2 class="text-xl font-semibold mt-6 mb-3 text-blue-700">4. Feedback</h2>
+                <div id="feedback-area" class="p-4 bg-gray-50 border border-gray-200 rounded-lg min-h-[80px] text-gray-700 text-sm shadow-inner">
+                    Your feedback will appear here.
+                </div>
+            </div>
+        </div>
+
+        <div id="progress-modal" class="fixed inset-0 bg-gray-800 bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center p-4">
+            <div class="relative p-6 border w-full max-w-md shadow-2xl rounded-xl bg-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-blue-700">Your Progress</h3>
+                    <button id="close-modal-button" class="text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+                </div>
+                <div id="progress-content" class="text-gray-700">
+                    <p class="mb-2">Total Points: <span id="modal-score" class="font-bold text-blue-600 text-lg">0</span></p>
+                    <h4 class="font-semibold mt-4 mb-2 text-blue-700">Patterns Mastered:</h4>
+                    <ul id="mastered-patterns-list" class="list-disc list-inside text-sm space-y-1">
+                        <li id="no-mastered-patterns">Keep practicing to master patterns!</li>
+                        </ul>
+                </div>
+            </div>
+        </div>
+        <button id="view-progress-button" class="fixed bottom-5 right-5 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-full shadow-xl transition duration-150 ease-in-out flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+            </svg>
+            View Progress
+        </button>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const patternsData = [
+                {
+                    id: "p1",
+                    name: "Conjunctions & Connectors",
+                    description: "Look for words like 'and', 'or', 'if', 'when', 'but', 'then', 'as well as', or commas. Split the story by separating the pieces these connectors hold together.",
+                    exampleStory: "As a couple planning a vacation for our family, We want a resort that has activities appropriate for our teenage children, as well as couples, so that we can all enjoy our vacation.",
+                    hint: "Identify the main connector word(s) or commas separating distinct desires or user groups. For example, 'as well as' is a key connector here.",
+                },
+                {
+                    id: "p2",
+                    name: "Generic Words",
+                    description: "Parse the text for generic nouns, verbs, adjectives, or adverbs. Replace these general terms with several more specific terms to create smaller stories.",
+                    exampleStory: "As a couple traveling with our family, We want romantic activities to do together, so that we can rekindle our love connection.",
+                    hint: "The word 'activities' is quite generic. What specific romantic activities could replace it?",
+                },
+                {
+                    id: "p3",
+                    name: "Workflow Steps",
+                    description: "If a story describes a process with multiple steps, you can split it into stories representing individual steps or smaller end-to-end slices of the workflow. Often, the beginning and end steps deliver the most initial value.",
+                    exampleStory: "As a content manager, I can publish a news story to the corporate website.",
+                    hint: "Consider the entire lifecycle of publishing. Are there approval steps? Staging? Focus on a thin slice or critical individual steps.",
+                },
+                {
+                    id: "p4",
+                    name: "Business Rule Variations",
+                    description: "When a story involves different ways of achieving the same goal based on varying business rules, each rule variation can become a separate story.",
+                    exampleStory: "As a user, I can search for flights with flexible dates.",
+                    hint: "What does 'flexible dates' mean in practice? Think of different rule interpretations like 'a weekend in month X' or '± N days'.",
+                },
+                {
+                    id: "p5",
+                    name: "Major Effort",
+                    description: "If implementing the first part of a story involves significant foundational work (e.g., setting up infrastructure), split the story to deliver that first part, then add subsequent stories for variations that build on it.",
+                    exampleStory: "As a user, I can pay for my flight with VISA, MasterCard, Diners Club, or American Express.",
+                    hint: "Implementing the first credit card type is the major effort. How can you phrase stories to reflect this?",
+                },
+                {
+                    id: "p6",
+                    name: "Simple/Complex",
+                    description: "When a story seems large due to many variations or complexities, ask 'What’s the simplest version?' Capture that, then break out complexities into separate stories.",
+                    exampleStory: "As a user, I can search for flights between two destinations.",
+                    hint: "The basic search is simple. What are some complexities that could be split off, like number of stops or nearby airports?",
+                },
+                {
+                    id: "p7",
+                    name: "Variations in Data",
+                    description: "Complexity can arise from handling different types or structures of data. Start with the simplest data handling and add stories for more complex variations as needed or known upfront.",
+                    exampleStory: "As a user, I can search for transportation providers by trip origin and destination.",
+                    hint: "How specific does the location data need to be initially? Could you start with counties and add cities/neighborhoods later?",
+                },
+                {
+                    id: "p8",
+                    name: "Data Entry Methods",
+                    description: "If complexity lies in the UI for data entry rather than the core functionality, build the simplest UI first, then create separate stories for more advanced or fancier UI elements.",
+                    exampleStory: "As a user, I can search for flights between two destinations.",
+                    hint: "This story is similar to 'Simple/Complex' but focuses on the UI. What's the most basic way to input dates versus a 'fancy' way?",
+                },
+                {
+                    id: "p9",
+                    name: "Defer Performance",
+                    description: "If making a feature fast is a large part of the effort, split the story into 'make it work' (functional but potentially slow) and 'make it fast' (performance optimization).",
+                    exampleStory: "As a user, I can search for flights between two destinations.",
+                    hint: "The core search logic might be achievable first. Performance tuning can be a separate story. How would you phrase these two distinct goals?",
+                },
+                {
+                    id: "p10",
+                    name: "Operations (e.g. CRUD)",
+                    description: "Words like 'manage' often hide multiple operations (Create, Read, Update, Delete). Split the story into separate stories for each distinct operation.",
+                    exampleStory: "As a user, I can manage my account.",
+                    hint: "What specific actions does 'manage my account' entail? Think about creating, editing, viewing, or deleting.",
+                },
+                {
+                    id: "p11",
+                    name: "Break Out a Spike",
+                    description: "If a story is large due to unknown implementation details (business domain or technical environment), create a time-boxed 'spike' story for investigation. The goal is to answer specific questions to de-risk and clarify the implementation path.",
+                    exampleStory: "As a user, I can pay by credit card.",
+                    hint: "If the team is unsure how to integrate credit card processing, what investigative story would help them gain clarity before committing to full implementation?",
+                }
+            ];
+
+            // --- UI ELEMENTS ---
+            const patternSelect = document.getElementById('pattern-select');
+            const patternDescription = document.getElementById('pattern-description');
+            const storyToSplit = document.getElementById('story-to-split');
+            const hintButton = document.getElementById('hint-button');
+            const hintArea = document.getElementById('hint-area');
+            const splitStoriesInputArea = document.getElementById('split-stories-input-area');
+            const addStoryButton = document.getElementById('add-story-button');
+            const submitSplitButton = document.getElementById('submit-split-button');
+            const feedbackArea = document.getElementById('feedback-area');
+            const scoreDisplay = document.getElementById('score');
+            const viewProgressButton = document.getElementById('view-progress-button');
+            const progressModal = document.getElementById('progress-modal');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const modalScoreDisplay = document.getElementById('modal-score');
+            const masteredPatternsList = document.getElementById('mastered-patterns-list');
+            const noMasteredPatternsMsg = document.getElementById('no-mastered-patterns');
+
+
+            // --- STATE ---
+            let currentScore = 0;
+            let currentPatternData = null; // Will hold the currently selected pattern object
+            // Placeholder for mastered patterns - in a real app, this would be dynamic
+            let masteredPatterns = new Set(); 
+
+            // --- FUNCTIONS ---
+
+            /**
+             * Initializes the application.
+             * Populates the pattern selector and loads the first pattern.
+             */
+            function initApp() {
+                populatePatternSelector();
+                if (patternsData.length > 0) {
+                    patternSelect.value = patternsData[0].id; // Select the first pattern by default
+                    loadPatternDetails(patternsData[0].id);
+                }
+                addInitialStoryBoxes(2); // Start with 2 boxes for splitting
+                updateScore(0); // Initialize score display
+            }
+
+            /**
+             * Populates the pattern select dropdown with options from patternsData.
+             */
+            function populatePatternSelector() {
+                patternsData.forEach(pattern => {
+                    const option = document.createElement('option');
+                    option.value = pattern.id;
+                    option.textContent = pattern.name;
+                    patternSelect.appendChild(option);
+                });
+            }
+
+            /**
+             * Loads and displays the details (description, example story) for the selected pattern.
+             * @param {string} patternId - The ID of the pattern to load.
+             */
+            function loadPatternDetails(patternId) {
+                currentPatternData = patternsData.find(p => p.id === patternId);
+                if (currentPatternData) {
+                    patternDescription.textContent = currentPatternData.description;
+                    storyToSplit.textContent = currentPatternData.exampleStory;
+                    hintArea.textContent = currentPatternData.hint;
+                    hintArea.classList.add('hidden'); // Hide hint initially
+                    feedbackArea.textContent = 'Split the story above using the selected pattern.';
+                    feedbackArea.className = 'p-4 bg-gray-50 border border-gray-200 rounded-lg min-h-[80px] text-gray-700 text-sm shadow-inner'; // Reset feedback style
+                }
+            }
+            
+            /**
+             * Adds a specified number of initial textareas for splitting stories.
+             * @param {number} count - The number of story boxes to add.
+             */
+            function addInitialStoryBoxes(count) {
+                splitStoriesInputArea.innerHTML = ''; // Clear existing boxes first
+                for (let i = 0; i < count; i++) {
+                    addStoryBox(false); // Add box without focus
+                }
+            }
+
+            /**
+             * Adds a new textarea for entering a split story.
+             * @param {boolean} focusAfterAdd - Whether to focus the new textarea.
+             */
+            function addStoryBox(focusAfterAdd = true) {
+                const storyBoxContainer = document.createElement('div');
+                storyBoxContainer.className = 'flex items-start space-x-2 animate-fadeIn'; // Added animation
+
+                const newTextarea = document.createElement('textarea');
+                newTextarea.className = 'split-story-input w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm text-sm';
+                newTextarea.rows = '3';
+                newTextarea.placeholder = `Enter split story ${splitStoriesInputArea.children.length + 1}...`;
+                
+                const removeButton = document.createElement('button');
+                removeButton.innerHTML = '&times;'; // Multiplication sign for 'X'
+                removeButton.className = 'remove-story-button text-red-500 hover:text-red-700 font-bold p-1.5 rounded-full text-xl mt-1';
+                removeButton.title = 'Remove this story box';
+
+                storyBoxContainer.appendChild(newTextarea);
+                storyBoxContainer.appendChild(removeButton);
+                splitStoriesInputArea.appendChild(storyBoxContainer);
+
+                if (focusAfterAdd) {
+                    newTextarea.focus();
+                }
+            }
+            
+            // CSS for fadeIn animation (add this to a <style> tag in head or a separate CSS file if preferred)
+            const styleSheet = document.createElement("style");
+            styleSheet.type = "text/css";
+            styleSheet.innerText = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+            `;
+            document.head.appendChild(styleSheet);
+
+
+            /**
+             * Handles the removal of a story box when its remove button is clicked.
+             * @param {HTMLElement} buttonElement - The remove button that was clicked.
+             */
+            function handleRemoveStoryBox(buttonElement) {
+                // Prevent removing if it's the last box, or ensure at least one is always there.
+                // For simplicity, current setup allows removing all. User can add new ones.
+                const storyBoxContainer = buttonElement.parentElement;
+                storyBoxContainer.style.animation = 'fadeOut 0.3s ease-out forwards';
+                 setTimeout(() => {
+                    storyBoxContainer.remove();
+                    // Re-number placeholders if needed (optional)
+                    const textareas = splitStoriesInputArea.querySelectorAll('.split-story-input');
+                    textareas.forEach((ta, index) => {
+                        ta.placeholder = `Enter split story ${index + 1}...`;
+                    });
+                }, 300); // Match animation duration
+            }
+            // CSS for fadeOut animation
+            const styleSheetFadeOut = document.createElement("style");
+            styleSheetFadeOut.type = "text/css";
+            styleSheetFadeOut.innerText = `
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: scale(1); }
+                    to { opacity: 0; transform: scale(0.9); }
+                }
+            `;
+            document.head.appendChild(styleSheetFadeOut);
+
+
+            /**
+             * Handles the submission of the split stories.
+             * Provides basic feedback and updates the score.
+             */
+            function handleSubmitSplit() {
+                if (!currentPatternData) {
+                    displayFeedback('Please select a pattern first.', 'error');
+                    return;
+                }
+
+                const splitStoryInputs = splitStoriesInputArea.querySelectorAll('.split-story-input');
+                const splitStories = Array.from(splitStoryInputs)
+                                        .map(input => input.value.trim())
+                                        .filter(story => story !== '');
+
+                if (splitStories.length === 0) {
+                    displayFeedback('Please enter at least one split story.', 'error');
+                    return;
+                }
+
+                // Basic validation: encourage at least two stories for a "split"
+                if (splitStories.length < 2) {
+                    displayFeedback(`Good start! Typically, splitting results in two or more smaller stories. Try to break it down further. You submitted ${splitStories.length} story.`, 'info');
+                    updateScore(1); // Small points for trying
+                } else {
+                    // More "successful" attempt
+                    displayFeedback(`Great attempt at splitting using the '${currentPatternData.name}' pattern! You created ${splitStories.length} new stories. Keep practicing to refine your splits!`, 'success');
+                    updateScore(5); // More points for a more complete attempt
+                    
+                    // Add to mastered patterns (simplified logic)
+                    if (!masteredPatterns.has(currentPatternData.name)) {
+                        masteredPatterns.add(currentPatternData.name);
+                        updateMasteredPatternsDisplay();
+                    }
+                }
+                // Clear input fields after submission
+                splitStoryInputs.forEach(input => input.value = '');
+                // Optionally, reset to 2 boxes
+                // addInitialStoryBoxes(2); 
+            }
+            
+            /**
+             * Updates the display of mastered patterns in the modal.
+             */
+            function updateMasteredPatternsDisplay() {
+                masteredPatternsList.innerHTML = ''; // Clear current list
+                if (masteredPatterns.size === 0) {
+                    masteredPatternsList.appendChild(noMasteredPatternsMsg);
+                } else {
+                    masteredPatterns.forEach(patternName => {
+                        const li = document.createElement('li');
+                        li.textContent = patternName;
+                        masteredPatternsList.appendChild(li);
+                    });
+                }
+            }
+
+
+            /**
+             * Displays feedback to the user.
+             * @param {string} message - The feedback message.
+             * @param {'info'|'success'|'error'} type - The type of feedback, affects styling.
+             */
+            function displayFeedback(message, type = 'info') {
+                feedbackArea.textContent = message;
+                let baseClasses = 'p-4 border rounded-lg min-h-[80px] text-sm shadow-inner ';
+                switch (type) {
+                    case 'success':
+                        feedbackArea.className = baseClasses + 'bg-green-100 border-green-300 text-green-700';
+                        break;
+                    case 'error':
+                        feedbackArea.className = baseClasses + 'bg-red-100 border-red-300 text-red-700';
+                        break;
+                    case 'info':
+                    default:
+                        feedbackArea.className = baseClasses + 'bg-blue-100 border-blue-300 text-blue-700';
+                        break;
+                }
+            }
+
+            /**
+             * Updates the user's score.
+             * @param {number} points - The points to add to the current score.
+             */
+            function updateScore(points) {
+                currentScore += points;
+                scoreDisplay.textContent = currentScore;
+                modalScoreDisplay.textContent = currentScore;
+            }
+
+            /**
+             * Toggles the visibility of the hint area.
+             */
+            function toggleHint() {
+                if (!currentPatternData) return;
+                hintArea.classList.toggle('hidden');
+                if (!hintArea.classList.contains('hidden')) {
+                    hintButton.textContent = 'Hide Hint';
+                } else {
+                    hintButton.textContent = 'Show Hint';
+                }
+            }
+
+            /**
+             * Toggles the visibility of the progress modal.
+             */
+            function toggleProgressModal() {
+                progressModal.classList.toggle('hidden');
+                if (!progressModal.classList.contains('hidden')) {
+                    // Update modal content if needed when showing
+                    modalScoreDisplay.textContent = currentScore;
+                    updateMasteredPatternsDisplay();
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            patternSelect.addEventListener('change', (event) => {
+                loadPatternDetails(event.target.value);
+                addInitialStoryBoxes(2); // Reset to 2 boxes when pattern changes
+            });
+
+            addStoryButton.addEventListener('click', () => addStoryBox());
+
+            // Event delegation for remove buttons
+            splitStoriesInputArea.addEventListener('click', (event) => {
+                if (event.target.classList.contains('remove-story-button')) {
+                    handleRemoveStoryBox(event.target);
+                }
+            });
+
+            submitSplitButton.addEventListener('click', handleSubmitSplit);
+            hintButton.addEventListener('click', toggleHint);
+            viewProgressButton.addEventListener('click', toggleProgressModal);
+            closeModalButton.addEventListener('click', toggleProgressModal);
+            
+            // Close modal if clicked outside of the content area
+            progressModal.addEventListener('click', (event) => {
+                if (event.target === progressModal) {
+                    toggleProgressModal();
+                }
+            });
+
+
+            // --- INITIALIZATION ---
+            initApp();
+        });
+    </script>
+</body>
+</html>
