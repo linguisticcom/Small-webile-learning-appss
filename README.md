@@ -1,126 +1,107 @@
- 🧩 User Story Splitting Practice
+# Small Webile Learning Apps – Linguistic Communication
 
-A lightweight web application that helps Agile teams and product managers practice breaking down large user stories into smaller, more manageable ones using a variety of splitting patterns.
+This repository contains the source code and HTML games used in the **Linguistic Communication Webapps Portal**, a suite of interactive learning tools developed for IT, business, and Agile training.
 
-
-
- Live Demo
-
- ( https://gemini.google.com/share/747880e63fa0) 
+All games are deployed in a shared `public_html/` directory, with a master `index.html` file that serves as a responsive portal interface for launching them.
 
 ---
 
-## 📚 Features
+## 🌐 Project Purpose
 
-* 🧠 **11 Agile Splitting Patterns** – including Conjunctions, Workflow Steps, Simple/Complex, CRUD Ops, and more.
-* ✍️ **Interactive Practice** – enter your own split stories and get instant feedback.
-* 💡 **Pattern Hints** – contextual hints help guide the splitting thought process.
-* 🏆 **Score & Mastery Tracking** – points and progress modal to encourage practice.
-* 🪄 **Modern UI** – responsive, elegant Tailwind CSS interface.
-* 🔍 **Progress Modal** – see which patterns you've mastered at any time.
+The **Small Webile Learning Apps** project supports experiential learning through short, focused, web-based games and simulations. Each app is mapped to a training module (LAN 10, LAN 30, LAN 50, etc.) and helps students reinforce key concepts in IT support, security, business systems, Agile roles, and communication.
 
 ---
 
-## 🎯 Use Case
+## 🧱 Project Structure
 
-This tool is ideal for:
+```plaintext
+public_html/
+├── assets/                          # Shared styles and scripts
+│   ├── index-8e0ddd2c.css
+│   ├── index-abb1fed7.js
+│   └── linguistic-communication-logo.jpg
+├── audit-ops.html                   # LAN 40 – Security Audit Game
+├── cyber-defenders.html            # LAN 40 – Threat Hunting Game
+├── help-desk-hero.html             # LAN 10 – Hardware Simulation
+├── LAN30components.html            # LAN 30 – Drag & Drop Network Matching
+├── lan50_presentation.html         # LAN 50 – Presentation Skills Trainer
+├── osi-model.html                  # LAN 30 – OSI Layer Game
+├── packet-quest.html               # LAN 30 – TCP/IP Navigation Game
+├── scrum_roles.html                # AGL-80 – Scrum Roles Simulation
+├── system-builder.html             # LAN 10 – Build an IT System
+├── user_story.html                 # AGL-80 – Agile User Story Splitting
+├── index.html                      # 🚀 Main portal interface
+├── public_html.zip                 # 📦 Backup ZIP of all games
+└── WEBILES UPLOAD DOCUMENTATION.pdf  # 📝 Deployment documentation
 
-* Scrum Masters coaching teams on backlog refinement.
-* Agile Coaches running workshops.
-* Students and professionals preparing for Agile certifications.
-* Self-paced learning for better story slicing techniques.
+| Game File                 | Title                                 | Module Code | Description                                                 |
+| ------------------------- | ------------------------------------- | ----------- | ----------------------------------------------------------- |
+| `help-desk-hero.html`     | **Hardware Architect**                | LAN 10      | Simulate building IT systems with different client goals    |
+| `system-builder.html`     | **System Builder Challenge**          | LAN 10      | Assemble business information systems with budget balancing |
+| `osi-model.html`          | **OSI Model Adventure**               | LAN 30      | Explore and quiz through the 7 layers of the OSI model      |
+| `packet-quest.html`       | **Packet Quest**                      | LAN 30      | Navigate a data packet through the TCP/IP layers            |
+| `LAN30components.html`    | **Network Navigator Game**            | LAN 30      | Drag-and-drop matching of networking components             |
+| `cyber-defenders.html`    | **Cyber Defenders: Threat Hunt**      | LAN 40      | Play as a cyber agent decoding attacks and threats          |
+| `audit-ops.html`          | **Audit Ops: Secure the Network**     | LAN 40      | Conduct a security audit and allocate time wisely           |
+| `lan50_presentation.html` | **Pitch Perfect: Present Like a Pro** | LAN 50      | Answer audience questions in simulated presentations        |
+| `user_story.html`         | **User Story Splitting**              | AGL-80      | Practice breaking big Agile stories into small deliverables |
+| `scrum_roles.html`        | **Scrum Roles**                       | AGL-80      | Assign roles and responsibilities in a Scrum team           |
 
----
+Use index.html as the homepage to launch any of these apps from a single interface.
 
-## 🛠️ Technologies Used
+🚀 How to Launch
+Host the entire public_html/ folder on your static host (e.g. Hostinger, GitHub Pages).
 
-* **HTML5**
-* **Vanilla JavaScript**
-* **Tailwind CSS** (via CDN)
-* **Google Fonts – Inter**
+Access the portal at index.html.
 
-No build tools, frameworks, or server components required.
+Click "Launch App" for any listed webapp.
 
----
+Each .html file is standalone and can be run locally or independently if needed.
 
-## 📦 Getting Started
+⚙️ Technologies Used
+HTML5
 
-### 🔧 Local Setup
+CSS3 (custom gradients, responsive layout)
 
-1. Clone the repository:
+Vanilla JavaScript (modules)
 
-```bash
-git clone https://github.com/your-username/story-splitting-practice.git
-cd story-splitting-practice
-```
+Vite Build Tool (Hostinger Horizons output)
 
-2. Open `index.html` in your browser.
+No frameworks – fast and lightweight
 
-No build or install steps needed.
+📚 Educational Modules Covered
+LAN 10 – Corporate IT and Information Systems
 
----
+LAN 30 – Networks and End-User Support
 
-## 🗂️ Project Structure
+LAN 40 – IT Security Auditing
 
-```
-.
-├── index.html        # Main application file (self-contained)
-├── README.md         # You're here!
-```
+LAN 50 – Presentations and Communication
 
----
+AGL-80 – Agile Leadership
 
-## 🧪 Sample Patterns Included
+📄 Documentation
+WEBILES UPLOAD DOCUMENTATION.pdf – Internal deployment instructions and update process
 
-| Pattern             | Description                                      |
-| ------------------- | ------------------------------------------------ |
-| Conjunctions        | Split on "and", "or", "as well as", etc.         |
-| Generic Words       | Replace vague terms like "activities"            |
-| Workflow Steps      | Break down complex flows into simpler actions    |
-| CRUD Operations     | Break 'manage' into Create, Read, Update, Delete |
-| Spike Investigation | Handle uncertain stories with time-boxed spikes  |
-| ...                 | 11 total patterns included                       |
+public_html.zip – Full backup of all files and assets
 
----
+🙋‍♀️ Authors & Credit
+Developed by the Linguistic Communication instructor team:
+https://linguistic-communication.com
 
-## 🖼️ Screenshots
+Graphics, ideas, and scenarios adapted from classroom use and student feedback.
 
-<details>
-<summary>Click to view</summary>
+📜 License
+This repository is for educational use only.
+Please contact the Linguistic Communication team for permission before reuse or commercial deployment.
 
-![Pattern Selection](https://via.placeholder.com/800x300?text=Pattern+Selection+UI)
-
-![Feedback Example](https://via.placeholder.com/800x300?text=Feedback+After+Submission)
-
-</details>
-
----
-
-## 🤝 Contribution
-
-Feel free to fork, submit issues, or open pull requests. Ideas to enhance:
-
-* Save progress in localStorage or Firebase
-* Add pattern-specific model answers
-* Export split stories as JSON or Markdown
-* Gamify further with badges & leveling
-
----
-
-## 📄 License
-
-MIT License — feel free to use, adapt, and share.
-
----
-
-## 👤 Author
-
-Built by [Your Name](https://github.com/your-username)
-Inspired by Agile principles and real-world team challenges.
 
 ---
 
 Would you like me to:
+- Save this as a real `README.md` file and upload it to your GitHub repo?
+- Split game descriptions into individual folders later if needed?
+- Generate a visual sitemap or PDF version?
 
-* Add this as a `README.md` file and package your `index.html` for GitHub?
-* Suggest favicon/logo ideas or deployment instructions (e.g. GitHub Pages)?
+Let me know how you'd like to proceed!
+
