@@ -34,18 +34,19 @@ public_html/
 ├── public_html.zip                 # 📦 Backup ZIP of all games
 └── WEBILES UPLOAD DOCUMENTATION.pdf  # 📝 Deployment documentation
 
-| Game File                 | Title                                 | Module Code | Description                                                 |
-| ------------------------- | ------------------------------------- | ----------- | ----------------------------------------------------------- |
-| `help-desk-hero.html`     | **Hardware Architect**                | LAN 10      | Simulate building IT systems with different client goals    |
-| `system-builder.html`     | **System Builder Challenge**          | LAN 10      | Assemble business information systems with budget balancing |
-| `osi-model.html`          | **OSI Model Adventure**               | LAN 30      | Explore and quiz through the 7 layers of the OSI model      |
-| `packet-quest.html`       | **Packet Quest**                      | LAN 30      | Navigate a data packet through the TCP/IP layers            |
-| `LAN30components.html`    | **Network Navigator Game**            | LAN 30      | Drag-and-drop matching of networking components             |
-| `cyber-defenders.html`    | **Cyber Defenders: Threat Hunt**      | LAN 40      | Play as a cyber agent decoding attacks and threats          |
-| `audit-ops.html`          | **Audit Ops: Secure the Network**     | LAN 40      | Conduct a security audit and allocate time wisely           |
-| `lan50_presentation.html` | **Pitch Perfect: Present Like a Pro** | LAN 50      | Answer audience questions in simulated presentations        |
-| `user_story.html`         | **User Story Splitting**              | AGL-80      | Practice breaking big Agile stories into small deliverables |
-| `scrum_roles.html`        | **Scrum Roles**                       | AGL-80      | Assign roles and responsibilities in a Scrum team           |
+| Game File                 | Title                              | Module Code | Description |
+|---------------------------|-------------------------------------|-------------|-------------|
+| `help-desk-hero.html`     | **Hardware Architect**              | LAN 10      | Simulate building IT systems with different client goals |
+| `system-builder.html`     | **System Builder Challenge**        | LAN 10      | Assemble business information systems with budget balancing |
+| `osi-model.html`          | **OSI Model Adventure**             | LAN 30      | Explore and quiz through the 7 layers of the OSI model |
+| `packet-quest.html`       | **Packet Quest**                    | LAN 30      | Navigate a data packet through the TCP/IP layers |
+| `LAN30components.html`    | **Network Navigator Game**          | LAN 30      | Drag-and-drop matching of networking components |
+| `cyber-defenders.html`    | **Cyber Defenders: Threat Hunt**    | LAN 40      | Play as a cyber agent decoding attacks and threats |
+| `audit-ops.html`          | **Audit Ops: Secure the Network**   | LAN 40      | Conduct a security audit and allocate time wisely |
+| `lan50_presentation.html` | **Pitch Perfect: Present Like a Pro**| LAN 50     | Answer audience questions in simulated presentations |
+| `user_story.html`         | **User Story Splitting**            | AGL-80      | Practice breaking big Agile stories into small deliverables |
+| `scrum_roles.html`        | **Scrum Roles**                     | AGL-80      | Assign roles and responsibilities in a Scrum team |
+
 
 Use index.html as the homepage to launch any of these apps from a single interface.
 
