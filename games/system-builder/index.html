@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Consultant Game</title>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Body Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* Game Container */
+        #game-container {
+            background-color: #fff;
+            border-radius: 12px; /* More rounded corners */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+            width: 100%;
+            max-width: 1400px; /* Increased max-width for better layout */
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Screen Transitions */
+        .game-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .game-screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons - Consistent Styling */
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px; /* Larger padding */
+            border: none;
+            border-radius: 8px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.1em; /* Slightly larger font */
+            font-weight: 600;
+            margin-top: 25px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Welcome & Mission Select & Results Screens */
+        #welcome-screen, #mission-select-screen, #results-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        #welcome-screen h1 {
+            font-size: 2.8em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        #welcome-screen p {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        #mission-select-screen h2, #results-screen h2 {
+            font-size: 2.2em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        #client-briefs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .client-brief {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: left;
+            background-color: #fefefe;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .client-brief:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .client-brief h3 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+
+        .client-brief p {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .client-brief h4 {
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .client-brief ul {
+            list-style-type: none; /* Remove default bullet */
+            padding-left: 0;
+            margin-top: 0;
+            font-size: 0.9em;
+        }
+
+        .client-brief ul li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .client-brief button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px 0;
+        }
+
+        /* Game Play Screen */
+        .header-bar {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #your-mission-box {
+            background-color: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 0.95em;
+            flex-grow: 1;
+            margin-right: 20px;
+            margin-bottom: 15px; /* For wrapping */
+        }
+
+        #your-mission-box h3 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+
+        #your-mission-box p {
+            margin-bottom: 5px;
+        }
+
+        #your-mission-box strong {
+            color: #333;
+        }
+
+        .game-stats {
+            font-weight: bold;
+            color: #555;
+            font-size: 1.1em;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .game-area {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping */
+            gap: 25px;
+        }
+
+        .component-palette, .system-builder-area {
+            flex: 1;
+            min-width: 300px; /* Ensure minimum width for columns */
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fdfdfd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .component-category h4, .drop-zone h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .draggable-component {
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: grab;
+            font-size: 0.95em;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .draggable-component:hover {
+            background-color: #d0d7dd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .draggable-component:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .draggable-component.dragging {
+            opacity: 0.5;
+            border-style: dashed;
+        }
+
+        .drop-zone {
+            min-height: 120px; /* Slightly taller */
+            border: 2px dashed #a8d9ff; /* Lighter blue */
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #f5faff; /* Lighter blue background */
+            margin-bottom: 20px;
+            position: relative;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .drop-zone.hover {
+            background-color: #e0f2ff; /* More distinct hover */
+            border-color: #007bff;
+        }
+
+        .selected-component {
+            background-color: #d4edda; /* Light green for selected */
+            border: 1px solid #28a745; /* Green border */
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #155724; /* Dark green text */
+            min-height: 40px; /* Ensure visibility for empty slots */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .selected-component.empty {
+            background-color: #f8f9fa; /* Lighter for empty */
+            border: 1px dashed #ced4da;
+            color: #6c757d;
+            font-style: italic;
+            justify-content: center;
+        }
+
+        .remove-component-btn {
+            background: none;
+            border: none;
+            color: #dc3545; /* Red for remove */
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.4em; /* Larger X */
+            padding: 0 5px;
+            transition: color 0.2s ease;
+        }
+        .remove-component-btn:hover {
+            color: #c82333;
+        }
+
+        .hint-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+            font-size: 1em;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+            animation: slideInTop 0.5s ease-out;
+        }
+
+        @keyframes slideInTop {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Results Screen Styling */
+        #scenario-results {
+            margin-top: 30px;
+        }
+
+        #scenario-results div {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+
+        #scenario-results div h4 {
+            margin-top: 0;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        #scenario-results div.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        #scenario-results div.failure {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #final-score {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 25px;
+            display: block;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #your-mission-box {
+                margin-right: 0;
+                width: 100%;
+            }
+            .game-stats {
+                width: 100%;
+                text-align: center;
+                margin-top: 15px;
+            }
+            .game-area {
+                flex-direction: column;
+            }
+            .component-palette, .system-builder-area {
+                min-width: unset;
+                width: 100%;
+            }
+            button {
+                width: 100%;
+                padding: 10px 0;
+            }
+        }
+
+        /* --- Component Info Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .component-info-modal {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.visible .component-info-modal {
+            transform: translateY(0);
+        }
+
+        .component-info-modal h3 {
+            color: #007bff;
+            font-size: 2em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .component-info-modal p {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .component-info-modal h4 {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .component-stats-list {
+            list-style-type: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .component-stats-list li {
+            background-color: #f0f8ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            color: #0056b3;
+            font-weight: 600;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #888;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            margin-top: 0; /* Override default button margin */
+        }
+
+        .close-modal-btn:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="game-screen active">
+            <h1>Welcome, IT Consultant!</h1>
+            <p>Your mission: Build a robust Information System by choosing hardware, software, people, data models, and procedures. Then, test your system against various scenarios!</p>
+            <button id="start-game-btn">Start Game</button>
+        </div>
+
+        <!-- Mission Select Screen -->
+        <div id="mission-select-screen" class="game-screen">
+            <h2>Select Your Mission</h2>
+            <div id="client-briefs">
+                <!-- Client briefs will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div id="game-play-screen" class="game-screen">
+            <div class="header-bar">
+                <div id="your-mission-box">
+                    <h3>Your Mission:</h3>
+                    <p id="current-mission-brief"></p>
+                    <p><strong>Priorities:</strong> <span id="current-mission-priorities"></span></p>
+                </div>
+                <div class="game-stats">
+                    Time Left: <span id="time-left">180</span>s | Score: <span id="current-score">0</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="component-palette">
+                    <h3>Available Components</h3>
+                    <div id="hardware-components" class="component-category" data-category="hardware">
+                        <h4>Hardware</h4>
+                        <!-- Draggable components will be loaded here -->
+                    </div>
+                    <div id="software-components" class="component-category" data-category="software">
+                        <h4>Software</h4>
+                    </div>
+                    <div id="people-components" class="component-category" data-category="people">
+                        <h4>People</h4>
+                    </div>
+                    <div id="data-model-components" class="component-category" data-category="data_models">
+                        <h4>Data Models</h4>
+                    </div>
+                    <div id="procedure-components" class="component-category" data-category="procedures">
+                        <h4>Procedures</h4>
+                    </div>
+                </div>
+
+                <div class="system-builder-area">
+                    <h3>Your System</h3>
+                    <!-- Drop zones for each category -->
+                    <div id="system-drop-zone-hardware" class="drop-zone" data-category="hardware">
+                        <h4>Hardware:</h4>
+                        <div class="selected-component empty" data-slot="server" data-category="hardware">Server slot (empty)</div>
+                        <div class="selected-component empty" data-slot="network" data-category="hardware">Network slot (empty)</div>
+                        <div class="selected-component empty" data-slot="storage" data-category="hardware">Storage slot (empty)</div>
+                        <div class="selected-component empty" data-slot="security_hardware" data-category="hardware">Security Hardware slot (empty)</div>
+                    </div>
+                    <div id="system-drop-zone-software" class="drop-zone" data-category="software">
+                        <h4>Software:</h4>
+                        <div class="selected-component empty" data-slot="os" data-category="software">OS slot (empty)</div>
+                        <div class="selected-component empty" data-slot="database" data-category="software">Database slot (empty)</div>
+                        <div class="selected-component empty" data-slot="crm" data-category="software">CRM slot (empty)</div>
+                        <div class="selected-component empty" data-slot="security_software" data-category="software">Security Software slot (empty)</div>
+                    </div>
+                    <div id="system-drop-zone-people" class="drop-zone" data-category="people">
+                        <h4>People:</h4>
+                        <div class="selected-component empty" data-slot="team" data-category="people">Team slot (empty)</div>
+                        <div class="selected-component empty" data-slot="specialist" data-category="people">Specialist slot (empty)</div>
+                    </div>
+                    <div id="system-drop-zone-data_models" class="drop-zone" data-category="data_models">
+                        <h4>Data Models:</h4>
+                        <div class="selected-component empty" data-slot="model" data-category="data_models">Model slot (empty)</div>
+                    </div>
+                    <div id="system-drop-zone-procedures" class="drop-zone" data-category="procedures">
+                        <h4>Procedures:</h4>
+                        <div class="selected-component empty" data-slot="backup" data-category="procedures">Backup slot (empty)</div>
+                        <div class="selected-component empty" data-slot="security_proc" data-category="procedures">Security Procedure slot (empty)</div>
+                    </div>
+                </div>
+            </div>
+            <button id="test-system-btn">Test System</button>
+            <button id="hint-btn">Get a Hint</button>
+            <div id="hint-display" class="hint-box"></div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="game-screen">
+            <h2>System Test Results</h2>
+            <div id="scenario-results">
+                <!-- Results will be displayed here -->
+            </div>
+            <p>Final Score: <span id="final-score"></span></p>
+            <button id="restart-game-btn">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Component Info Modal -->
+    <div id="component-info-modal-overlay" class="modal-overlay">
+        <div class="component-info-modal">
+            <button class="close-modal-btn" id="close-component-info-modal">&times;</button>
+            <h3 id="modal-component-name"></h3>
+            <p id="modal-component-description"></p>
+            <h4>Key Stats:</h4>
+            <ul id="modal-component-stats" class="component-stats-list">
+                <!-- Stats will be dynamically loaded here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Data ---
+        // Defines all available components across different categories.
+        // Each component has an ID, name, description, and a set of 'stats'.
+        // 'stats' are on a 1-5 scale, where 1 is lowest/cheapest and 5 is highest/best.
+        // 'category' helps organize components, and 'slot' defines where it can be placed in the system builder.
+        const components = {
+            hardware: [
+                { id: 'server_basic', name: 'Basic Web Server', description: 'Entry-level server, good for small loads. Ideal for simple websites or testing environments where cost is a major constraint.', stats: { performance: 3, security: 2, cost: 1, scalability: 2, compliance: 2, dataRedundancy: 1, backupRecovery: 1 }, category: 'hardware', slot: 'server' },
+                { id: 'server_enterprise', name: 'Enterprise Cloud Server', description: 'High-performance, scalable cloud solution. Offers robust computing power and can be easily scaled up or down based on demand, but comes at a higher cost.', stats: { performance: 5, security: 4, cost: 4, scalability: 5, compliance: 4, dataRedundancy: 3, backupRecovery: 3 }, category: 'hardware', slot: 'server' },
+                { id: 'network_router', name: 'Basic Network Router', description: 'Connects devices, limited bandwidth. Suitable for small offices or home networks, but may become a bottleneck under heavy traffic.', stats: { performance: 2, security: 2, cost: 1, scalability: 1, compliance: 1, dataRedundancy: 0, backupRecovery: 0 }, category: 'hardware', slot: 'network' },
+                { id: 'network_datacenter', name: 'Data Center Network Fabric', description: 'High-speed, redundant network infrastructure. Designed for large-scale operations requiring maximum uptime and throughput, often used in cloud environments.', stats: { performance: 5, security: 4, cost: 4, scalability: 5, compliance: 4, dataRedundancy: 4, backupRecovery: 3 }, category: 'hardware', slot: 'network' },
+                { id: 'storage_hdd', name: 'Standard HDD Storage', description: 'Affordable, but slower and less resilient. Good for archival data or less frequently accessed information where budget is a primary concern.', stats: { performance: 2, security: 2, cost: 1, scalability: 2, compliance: 1, dataRedundancy: 1, backupRecovery: 2 }, category: 'hardware', slot: 'storage' },
+                { id: 'storage_ssd_raid', name: 'SSD RAID Array', description: 'Fast, reliable, and redundant storage. Provides excellent performance for active data and protects against data loss through redundancy.', stats: { performance: 4, security: 3, cost: 3, scalability: 4, compliance: 3, dataRedundancy: 4, backupRecovery: 4 }, category: 'hardware', slot: 'storage' },
+                { id: 'security_firewall_basic', name: 'Basic Firewall Appliance', description: 'Essential network protection. Filters incoming and outgoing traffic to block unauthorized access, a fundamental security measure.', stats: { performance: 0, security: 3, cost: 1, scalability: 1, compliance: 2, dataRedundancy: 0, backupRecovery: 0 }, category: 'hardware', slot: 'security_hardware' },
+                { id: 'security_utm', name: 'Unified Threat Management (UTM)', description: 'Comprehensive security, advanced features. Combines firewall, antivirus, intrusion detection, and more into a single appliance for robust protection.', stats: { performance: 0, security: 5, cost: 4, scalability: 3, compliance: 4, dataRedundancy: 0, backupRecovery: 0 }, category: 'hardware', slot: 'security_hardware' }
+            ],
+            software: [
+                { id: 'os_linux', name: 'Linux OS (Ubuntu)', description: 'Open-source, highly customizable, good security. A versatile operating system often chosen for servers due to its stability and low cost.', stats: { performance: 4, security: 4, cost: 1, scalability: 3, compliance: 3, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'os' },
+                { id: 'os_windows_server', name: 'Windows Server OS', description: 'Industry standard, good support, higher cost. Provides a familiar interface and strong integration with Microsoft ecosystem, common in enterprise environments.', stats: { performance: 3, security: 3, cost: 2, scalability: 3, compliance: 3, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'os' },
+                { id: 'db_mysql', name: 'MySQL Database', description: 'Popular open-source relational database. Widely used for web applications due to its reliability and ease of use.', stats: { performance: 3, security: 3, cost: 1, scalability: 3, compliance: 2, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'database' },
+                { id: 'db_oracle', name: 'Oracle Database', description: 'Enterprise-grade, high performance, high cost. A powerful and feature-rich database system designed for large-scale, mission-critical applications.', stats: { performance: 5, security: 4, cost: 5, scalability: 4, compliance: 4, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'database' },
+                { id: 'crm_offtheshelf', name: 'Off-the-Shelf CRM', description: 'Quick to deploy, but less flexible. A ready-made solution for managing customer relationships, good for rapid deployment but limited customization.', stats: { performance: 3, security: 3, cost: 2, scalability: 2, compliance: 2, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'crm' },
+                { id: 'crm_custom', name: 'Custom CRM Solution', description: 'Tailored to needs, high development cost, high flexibility. Built specifically for a company\'s unique processes, offering maximum control but requiring significant investment.', stats: { performance: 4, security: 4, cost: 5, scalability: 4, compliance: 4, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'crm' },
+                { id: 'security_antivirus', name: 'Basic Antivirus Software', description: 'Standard protection against common threats. Essential software to detect and remove malware, a foundational layer of cyber defense.', stats: { performance: 0, security: 2, cost: 1, scalability: 0, compliance: 1, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'security_software' },
+                { id: 'security_siem', name: 'SIEM System', description: 'Security Information and Event Management for threat detection. Collects and analyzes security alerts from various sources to provide real-time threat intelligence.', stats: { performance: 0, security: 5, cost: 4, scalability: 0, compliance: 4, dataRedundancy: 0, backupRecovery: 0 }, category: 'software', slot: 'security_software' }
+            ],
+            people: [
+                { id: 'staff_untrained', name: 'Untrained Staff', description: 'Cheaper, but prone to errors and security risks. May lead to operational inefficiencies and vulnerabilities due to lack of knowledge or adherence to best practices.', stats: { performance: 1, security: 1, cost: 1, scalability: 1, compliance: 1, dataRedundancy: 0, backupRecovery: 0 }, category: 'people', slot: 'team' },
+                { id: 'staff_trained', name: 'Trained IT Staff', description: 'Knowledgeable, reduces errors, improves security. Essential for efficient operations, proactive problem-solving, and maintaining a secure IT environment.', stats: { performance: 3, security: 3, cost: 3, scalability: 2, compliance: 3, dataRedundancy: 0, backupRecovery: 0 }, category: 'people', slot: 'team' },
+                { id: 'consultant_expert', name: 'Expert IT Consultant', description: 'Expensive but brings specialized skills and best practices. Provides high-level strategic guidance and can implement complex solutions, ideal for critical projects.', stats: { performance: 5, security: 5, cost: 5, scalability: 3, compliance: 5, dataRedundancy: 0, backupRecovery: 0 }, category: 'people', slot: 'specialist' },
+                { id: 'security_analyst', name: 'Dedicated Security Analyst', description: 'Focuses solely on threat monitoring and response. A specialized role crucial for advanced threat detection, incident response, and maintaining a strong security posture.', stats: { performance: 0, security: 5, cost: 4, scalability: 0, compliance: 4, dataRedundancy: 0, backupRecovery: 0 }, category: 'people', slot: 'specialist' }
+            ],
+            data_models: [
+                { id: 'data_flat_file', name: 'Flat File System', description: 'Simple, but no relationships or integrity checks. Data is stored in plain text files, easy to implement for very small datasets but lacks structure and scalability.', stats: { performance: 1, security: 1, cost: 1, scalability: 1, compliance: 1, dataRedundancy: 1, backupRecovery: 1, dataIntegrity: 1 }, category: 'data_models', slot: 'model' },
+                { id: 'data_relational', name: 'Relational Database Model', description: 'Structured, ensures data integrity with relationships. Data is organized into tables with predefined relationships, ideal for transactional data and complex queries.', stats: { performance: 3, security: 3, cost: 2, scalability: 3, compliance: 3, dataRedundancy: 2, backupRecovery: 2, dataIntegrity: 4 }, category: 'data_models', slot: 'model' },
+                { id: 'data_nosql_distributed', name: 'NoSQL Distributed Database', description: 'Highly scalable, flexible schema, good for big data. Designed for handling large volumes of unstructured or semi-structured data, often used in cloud-native applications.', stats: { performance: 4, security: 3, cost: 3, scalability: 5, compliance: 2, dataRedundancy: 4, backupRecovery: 3, dataIntegrity: 3 }, category: 'data_models', slot: 'model' }
+            ],
+            procedures: [
+                { id: 'proc_manual_backup', name: 'Manual Backup & Recovery', description: 'Time-consuming, error-prone, but low direct cost. Requires human intervention for data backups and restoration, suitable only for very small, non-critical systems.', stats: { performance: 1, security: 2, cost: 1, scalability: 1, compliance: 1, dataRedundancy: 1, backupRecovery: 1 }, category: 'procedures', slot: 'backup' },
+                { id: 'proc_automated_backup', name: 'Automated Backup & DR', description: 'Reliable, efficient, higher initial setup cost. Ensures regular, consistent data backups and a plan for disaster recovery, crucial for business continuity.', stats: { performance: 3, security: 4, cost: 3, scalability: 3, compliance: 4, dataRedundancy: 3, backupRecovery: 5 }, category: 'procedures', slot: 'backup' },
+                { id: 'proc_basic_security', name: 'Basic Security Protocols', description: 'Default measures, minimal training. Includes fundamental security practices like strong passwords and basic access control, but may not protect against advanced threats.', stats: { performance: 0, security: 2, cost: 1, scalability: 0, compliance: 2, dataRedundancy: 0, backupRecovery: 0 }, category: 'procedures', slot: 'security_proc' },
+                { id: 'proc_advanced_security', name: 'Advanced Security Protocols', description: 'Regular audits, threat intelligence, incident response. Involves comprehensive security policies, regular vulnerability assessments, and a rapid response plan for security incidents.', stats: { performance: 0, security: 5, cost: 4, scalability: 0, compliance: 5, dataRedundancy: 0, backupRecovery: 0 }, category: 'procedures', slot: 'security_proc' }
+            ]
+        };
+
+        // Mission data, including client brief, priorities, failure messages, and hints.
+        const missions = [
+            {
+                id: 'ecommerce_startup',
+                clientName: 'E-Commerce Startup',
+                brief: 'A new online store needs a system to handle product sales, customer data, and payment processing. They are bootstrapped and need to keep costs low initially but anticipate rapid growth.',
+                priorities: { cost: 5, scalability: 4, performance: 3, security: 2, compliance: 1, dataIntegrity: 1, dataRedundancy: 1, backupRecovery: 1 }, // Higher value = higher priority
+                failureMessages: {
+                    heavyLoad: "Customers are abandoning carts! Your servers are melting under the pressure. Maybe next time, invest in something more robust than a potato.",
+                    cyberattack: "Hacked! All customer data is gone. Looks like your security plan was 'hope for the best'.",
+                    complianceAudit: "Audit failed! Your system is a regulatory nightmare. Better brush up on your GDPR and HIPAA.",
+                    dataLoss: "Catastrophic data loss! All product listings and order history vanished. Guess it's time to go back to pen and paper."
+                },
+                hints: [
+                    "For this client, prioritizing **low cost** is key in the early stages.",
+                    "Think about **scalability** to handle future growth without major overhauls.",
+                    "Consider cloud solutions for scalability, but balance with initial cost.",
+                    "Off-the-shelf software might be faster and cheaper to deploy."
+                ]
+            },
+            {
+                id: 'university_research',
+                clientName: 'University Research Database',
+                brief: 'A university department needs a secure and compliant system to store sensitive research data, accessible by multiple researchers. Data integrity and long-term storage are crucial.',
+                priorities: { security: 5, compliance: 5, dataIntegrity: 4, performance: 2, cost: 2, scalability: 3, dataRedundancy: 4, backupRecovery: 5 },
+                failureMessages: {
+                    heavyLoad: "Research papers are stuck in a queue. Even the professors are falling asleep waiting for their data.",
+                    cyberattack: "Major data breach! Classified research published on the dark web. Looks like someone's getting a stern email from the Dean.",
+                    complianceAudit: "Ethics committee is knocking! Your data handling practices just earned the university a massive fine.",
+                    dataLoss: "Years of groundbreaking research, gone! The only thing left is a cryptic 'oops' message on the server log."
+                },
+                hints: [
+                    "**Security** and **compliance** are paramount for sensitive research data.",
+                    "Focus on robust **data models** and **procedures** for data integrity and recovery.",
+                    "Consider trained staff and advanced security protocols.",
+                    "Redundant storage and automated backups are vital here."
+                ]
+            }
+            // Add more missions here if desired
+        ];
+
+        // --- Game State Variables ---
+        // 'currentGame' holds the current state of the game.
+        // 'selectedSystem' stores the components the player has chosen for their IS.
+        let currentGame = {
+            screen: 'welcome', // Current active screen ('welcome', 'missionSelect', 'gamePlay', 'results')
+            missionId: null,   // ID of the selected mission
+            selectedSystem: {
+                hardware: [],      // Stores { slot: 'server', component: componentObject }
+                software: [],
+                people: [],
+                data_models: [],
+                procedures: []
+            },
+            score: 0,          // Current game score
+            timeLeft: 180,     // Time limit in seconds (3 minutes)
+            timerInterval: null, // Holds the interval ID for the countdown timer
+            scenarioResults: [] // Stores the results of each scenario test
+        };
+
+        // --- DOM Elements ---
+        // References to various HTML elements for easy manipulation.
+        const screens = {
+            welcome: document.getElementById('welcome-screen'),
+            missionSelect: document.getElementById('mission-select-screen'),
+            gamePlay: document.getElementById('game-play-screen'),
+            results: document.getElementById('results-screen')
+        };
+
+        const startGameBtn = document.getElementById('start-game-btn');
+        const clientBriefsContainer = document.getElementById('client-briefs');
+        const currentMissionBriefElem = document.getElementById('current-mission-brief');
+        const currentMissionPrioritiesElem = document.getElementById('current-mission-priorities');
+        const timeLeftElem = document.getElementById('time-left');
+        const currentScoreElem = document.getElementById('current-score');
+        const testSystemBtn = document.getElementById('test-system-btn');
+        const restartGameBtn = document.getElementById('restart-game-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const hintDisplay = document.getElementById('hint-display');
+        const scenarioResultsContainer = document.getElementById('scenario-results');
+        const finalScoreElem = document.getElementById('final-score');
+
+        // References to component palette containers and system drop zones.
+        const componentPalette = {
+            hardware: document.getElementById('hardware-components'),
+            software: document.getElementById('software-components'),
+            people: document.getElementById('people-components'),
+            data_models: document.getElementById('data-model-components'),
+            procedures: document.getElementById('procedure-components')
+        };
+
+        // This object maps category names to their respective drop zone elements.
+        // It's used to dynamically render and manage the system builder area.
+        const systemDropZones = {
+            hardware: document.getElementById('system-drop-zone-hardware'),
+            software: document.getElementById('system-drop-zone-software'),
+            people: document.getElementById('system-drop-zone-people'),
+            data_models: document.getElementById('system-drop-zone-data_models'),
+            procedures: document.getElementById('system-drop-zone-procedures')
+        };
+
+        // Modal Elements
+        const componentInfoModalOverlay = document.getElementById('component-info-modal-overlay');
+        const closeComponentInfoModalBtn = document.getElementById('close-component-info-modal');
+        const modalComponentName = document.getElementById('modal-component-name');
+        const modalComponentDescription = document.getElementById('modal-component-description');
+        const modalComponentStats = document.getElementById('modal-component-stats');
+
+
+        // --- Game Functions ---
+
+        /**
+         * Switches the active screen displayed to the user.
+         * @param {string} screenName - The ID of the screen to show (e.g., 'welcome', 'gamePlay').
+         */
+        function showScreen(screenName) {
+            Object.values(screens).forEach(screen => screen.classList.remove('active'));
+            screens[screenName].classList.add('active');
+            currentGame.screen = screenName;
+        }
+
+        /**
+         * Initiates the game by showing the mission selection screen.
+         */
+        function startGame() {
+            showScreen('missionSelect');
+            renderClientBriefs();
+        }
+
+        /**
+         * Selects a mission and transitions to the game play screen.
+         * @param {string} missionId - The ID of the selected mission.
+         */
+        function selectMission(missionId) {
+            currentGame.missionId = missionId;
+            const mission = missions.find(m => m.id === missionId);
+            if (mission) {
+                currentMissionBriefElem.textContent = mission.brief;
+                currentMissionPrioritiesElem.innerHTML = formatPriorities(mission.priorities);
+                showScreen('gamePlay');
+                initializeGamePlay();
+            }
+        }
+
+        /**
+         * Formats mission priorities into a readable string with stars.
+         * @param {object} priorities - An object containing priority names and their values.
+         * @returns {string} HTML string representing formatted priorities.
+         */
+        function formatPriorities(priorities) {
+            return Object.entries(priorities)
+                .filter(([, value]) => value > 0) // Only show priorities with a value greater than 0
+                .sort(([, a], [, b]) => b - a)    // Sort by highest priority first
+                .map(([key, value]) => {
+                    const formattedKey = key.replace(/([A-Z])/g, ' $1').trim(); // Add space before capital letters
+                    return `<span>${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)}: ${'⭐'.repeat(value)}</span>`;
+                })
+                .join(', ');
+        }
+
+        /**
+         * Renders the client briefs on the mission selection screen.
+         * Each brief includes mission details and a "Select" button.
+         */
+        function renderClientBriefs() {
+            clientBriefsContainer.innerHTML = ''; // Clear previous briefs
+            missions.forEach(mission => {
+                const div = document.createElement('div');
+                div.classList.add('client-brief');
+                div.innerHTML = `
+                    <h3>${mission.clientName}</h3>
+                    <p>${mission.brief}</p>
+                    <h4>Priorities:</h4>
+                    <ul>
+                        ${Object.entries(mission.priorities).filter(([, value]) => value > 0).map(([key, value]) => {
+                            const formattedKey = key.replace(/([A-Z])/g, ' $1').trim();
+                            return `<li>${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)}: ${'⭐'.repeat(value)}</li>`;
+                        }).join('')}
+                    </ul>
+                    <button data-mission-id="${mission.id}">Select This Mission</button>
+                `;
+                // Attach event listener to the select button
+                div.querySelector('button').addEventListener('click', (e) => selectMission(e.target.dataset.missionId));
+                clientBriefsContainer.appendChild(div);
+            });
+        }
+
+        /**
+         * Initializes the game play screen: resets state, starts timer, renders components.
+         */
+        function initializeGamePlay() {
+            // Reset game state
+            currentGame.selectedSystem = { hardware: [], software: [], people: [], data_models: [], procedures: [] };
+            currentGame.score = 0;
+            currentGame.timeLeft = 180; // Reset time to 3 minutes
+            currentGame.scenarioResults = [];
+            currentScoreElem.textContent = 0; // Update score display
+            updateTimerDisplay(); // Update timer display
+            startTimer(); // Start the countdown timer
+            renderComponentPalette(); // Populate the draggable components
+            renderSystemBuilder(); // Set up the drop zones
+            hintDisplay.style.display = 'none'; // Hide any previous hints
+        }
+
+        /**
+         * Starts the game countdown timer.
+         */
+        function startTimer() {
+            if (currentGame.timerInterval) clearInterval(currentGame.timerInterval); // Clear any existing timer
+            currentGame.timerInterval = setInterval(() => {
+                currentGame.timeLeft--;
+                updateTimerDisplay();
+                if (currentGame.timeLeft <= 0) {
+                    clearInterval(currentGame.timerInterval); // Stop timer
+                    testSystem(); // Automatically test system when time runs out
+                }
+            }, 1000); // Update every second
+        }
+
+        /**
+         * Updates the displayed time left.
+         */
+        function updateTimerDisplay() {
+            timeLeftElem.textContent = currentGame.timeLeft;
+        }
+
+        /**
+         * Populates the component palette with draggable components.
+         */
+        function renderComponentPalette() {
+            for (const category in components) {
+                const categoryContainer = componentPalette[category];
+                if (categoryContainer) {
+                    // Clear previous components and add category title
+                    categoryContainer.innerHTML = `<h4>${category.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</h4>`;
+                    components[category].forEach(comp => {
+                        const div = document.createElement('div');
+                        div.classList.add('draggable-component');
+                        div.setAttribute('draggable', true); // Make it draggable
+                        div.dataset.componentId = comp.id;
+                        div.dataset.category = comp.category;
+                        div.dataset.slot = comp.slot; // Store the component's intended slot
+                        div.textContent = comp.name;
+                        div.addEventListener('dragstart', handleDragStart); // Add drag start listener
+                        div.addEventListener('click', () => showComponentInfo(comp)); // Add click listener for info modal
+                        categoryContainer.appendChild(div);
+                    });
+                }
+            }
+        }
+
+        /**
+         * Renders the system builder area with drop zones for each component category and slot.
+         */
+        function renderSystemBuilder() {
+            for (const category in systemDropZones) {
+                const dropZone = systemDropZones[category];
+                // Clear previous content and add category title
+                dropZone.innerHTML = `<h4>${category.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}:</h4>`;
+
+                // Define expected slots for each category. These must match the 'slot' property in 'components' data.
+                const slots = {
+                    hardware: ['server', 'network', 'storage', 'security_hardware'],
+                    software: ['os', 'database', 'crm', 'security_software'],
+                    people: ['team', 'specialist'],
+                    data_models: ['model'],
+                    procedures: ['backup', 'security_proc']
+                };
+
+                // Create a 'selected-component' div for each expected slot.
+                slots[category].forEach(slotName => {
+                    const selectedCompContainer = document.createElement('div');
+                    selectedCompContainer.classList.add('selected-component');
+                    selectedCompContainer.dataset.slot = slotName; // Set the slot name
+                    selectedCompContainer.dataset.category = category; // Set the category for the drop zone
+                    selectedCompContainer.classList.add('empty'); // Initially empty
+                    selectedCompContainer.textContent = `${slotName.charAt(0).toUpperCase() + slotName.slice(1)} slot (empty)`;
+
+                    // Check if a component is already in this slot in currentGame.selectedSystem (e.g., on re-render)
+                    const existingComponent = currentGame.selectedSystem[category].find(item => item.slot === slotName);
+                    if (existingComponent && existingComponent.component) {
+                        updateSelectedComponentUI(selectedCompContainer, existingComponent.component);
+                    }
+
+                    // Add drag and drop event listeners to the slot
+                    selectedCompContainer.addEventListener('dragover', handleDragOver);
+                    selectedCompContainer.addEventListener('dragleave', handleDragLeave);
+                    selectedCompContainer.addEventListener('drop', handleDrop);
+                    dropZone.appendChild(selectedCompContainer);
+                });
+            }
+            updateScore(); // Update score after rendering builder
+        }
+
+        /**
+         * Updates the UI of a selected component slot.
+         * @param {HTMLElement} element - The div representing the slot.
+         * @param {object|null} component - The component object to display, or null if empty.
+         */
+        function updateSelectedComponentUI(element, component) {
+            if (component) {
+                element.classList.remove('empty');
+                // Display component name and a remove button
+                element.innerHTML = `${component.name} <button class="remove-component-btn" data-component-id="${component.id}">×</button>`;
+                // Add event listener to the remove button
+                element.querySelector('.remove-component-btn').addEventListener('click', handleRemoveComponent);
+            } else {
+                element.classList.add('empty');
+                // Display empty slot text
+                element.innerHTML = `${element.dataset.slot.charAt(0).toUpperCase() + element.dataset.slot.slice(1)} slot (empty)`;
+            }
+        }
+
+        /**
+         * Handles the dragstart event for draggable components.
+         * Stores component ID, category, and slot in dataTransfer for drop handling.
+         * @param {DragEvent} e
+         */
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.componentId);
+            e.dataTransfer.setData('text/category', e.target.dataset.category);
+            e.dataTransfer.setData('text/slot', e.target.dataset.slot); // Pass the component's intended slot
+            e.target.classList.add('dragging'); // Add dragging class for visual feedback
+        }
+
+        /**
+         * Handles the dragover event for drop zones.
+         * Prevents default to allow dropping and adds a 'hover' class for visual feedback.
+         * Ensures the dragged item's category matches the drop target's category and it's a valid slot.
+         * @param {DragEvent} e
+         */
+        function handleDragOver(e) {
+            e.preventDefault(); // Allow drop
+            const draggedCategory = e.dataTransfer.getData('text/category');
+            const draggedSlot = e.dataTransfer.getData('text/slot');
+            const targetElement = e.target.closest('.selected-component'); // Find the closest slot element
+
+            if (targetElement && targetElement.dataset.category === draggedCategory && targetElement.dataset.slot === draggedSlot) {
+                targetElement.classList.add('hover');
+            }
+        }
+
+        /**
+         * Handles the dragleave event for drop zones.
+         * Removes the 'hover' class.
+         * @param {DragEvent} e
+         */
+        function handleDragLeave(e) {
+            e.target.classList.remove('hover');
+        }
+
+        /**
+         * Handles the drop event for drop zones.
+         * Retrieves component data, updates game state, and refreshes UI.
+         * @param {DragEvent} e
+         */
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('hover'); // Remove hover class
+
+            const componentId = e.dataTransfer.getData('text/plain');
+            const componentCategory = e.dataTransfer.getData('text/category');
+            const componentSlot = e.dataTransfer.getData('text/slot'); // The slot the component is designed for
+
+            const dropTargetElement = e.target.closest('.selected-component'); // Ensure we're dropping into a slot
+            const dropTargetCategory = dropTargetElement ? dropTargetElement.dataset.category : null;
+            const dropTargetSlot = dropTargetElement ? dropTargetElement.dataset.slot : null;
+
+            // Validate that the component is dropped into its correct category and designated slot
+            if (componentCategory === dropTargetCategory && componentSlot === dropTargetSlot) {
+                const component = components[componentCategory].find(c => c.id === componentId);
+                if (component) {
+                    // Remove any existing component from this specific slot before adding the new one
+                    currentGame.selectedSystem[componentCategory] = currentGame.selectedSystem[componentCategory].filter(
+                        item => item.slot !== dropTargetSlot
+                    );
+                    // Add the newly dropped component to the selected system for its slot
+                    currentGame.selectedSystem[componentCategory].push({ slot: dropTargetSlot, component: component });
+                    updateSelectedComponentUI(dropTargetElement, component); // Update the UI for the specific slot
+                    updateScore(); // Recalculate and display score
+                }
+            }
+            // Remove dragging class from the original draggable element
+            document.querySelector('.draggable-component.dragging')?.classList.remove('dragging');
+        }
+
+        /**
+         * Handles the click event for the 'remove component' button.
+         * Removes the component from the game state and updates the UI.
+         * @param {MouseEvent} e
+         */
+        function handleRemoveComponent(e) {
+            const componentIdToRemove = e.target.dataset.componentId;
+            // Iterate through categories to find and remove the component
+            for (const category in currentGame.selectedSystem) {
+                const index = currentGame.selectedSystem[category].findIndex(item => item.component && item.component.id === componentIdToRemove);
+                if (index !== -1) {
+                    const slotToRemove = currentGame.selectedSystem[category][index].slot;
+                    // Filter out the component from the selected system array
+                    currentGame.selectedSystem[category] = currentGame.selectedSystem[category].filter(item => item.slot !== slotToRemove);
+                    // Update the UI for that specific slot to be empty
+                    const targetElement = document.querySelector(`.selected-component[data-slot="${slotToRemove}"][data-category="${category}"]`);
+                    if (targetElement) {
+                        updateSelectedComponentUI(targetElement, null); // Set UI to empty
+                    }
+                    break; // Component found and removed, exit loop
+                }
+            }
+            updateScore(); // Recalculate and display score
+        }
+
+        /**
+         * Aggregates all stats from the currently selected system components.
+         * @param {object} system - The currentGame.selectedSystem object.
+         * @returns {object} An object with aggregated stats.
+         */
+        function aggregateSystemStats(system) {
+            const aggregated = {
+                performance: 0,
+                security: 0,
+                cost: 0,
+                scalability: 0,
+                compliance: 0,
+                dataRedundancy: 0,
+                backupRecovery: 0,
+                dataIntegrity: 0
+            };
+
+            for (const category in system) {
+                system[category].forEach(item => {
+                    if (item.component && item.component.stats) {
+                        for (const stat in item.component.stats) {
+                            if (aggregated.hasOwnProperty(stat)) { // Ensure stat exists in aggregated object
+                                aggregated[stat] += item.component.stats[stat];
+                            }
+                        }
+                    }
+                });
+            }
+            return aggregated;
+        }
+
+        /**
+         * Calculates the current score based on the selected system and mission priorities.
+         * @returns {number} The calculated score.
+         */
+        function calculateScore() {
+            const mission = missions.find(m => m.id === currentGame.missionId);
+            if (!mission) return 0; // Return 0 if no mission is selected
+
+            const aggregatedStats = aggregateSystemStats(currentGame.selectedSystem);
+            let currentScore = 0;
+
+            // Iterate through mission priorities and apply weights to aggregated stats
+            for (const priority in mission.priorities) {
+                const priorityWeight = mission.priorities[priority];
+                let statValue = aggregatedStats[priority] || 0; // Get the aggregated stat value
+
+                // Special handling for 'cost': lower cost is better, so invert the stat value for scoring
+                if (priority === 'cost') {
+                    // A conceptual maximum aggregated cost to invert against.
+                    // This needs to be carefully balanced with your component costs.
+                    // Example: if max possible cost for a full system is 25, then 25 - actual_cost.
+                    const MAX_POSSIBLE_AGGREGATED_COST = 25; // Sum of max 'cost' stat across all possible slots
+                    statValue = MAX_POSSIBLE_AGGREGATED_COST - statValue;
+                    statValue = Math.max(0, statValue); // Ensure score doesn't go negative
+                }
+
+                currentScore += statValue * priorityWeight;
+            }
+            return Math.round(currentScore); // Return rounded score
+        }
+
+        /**
+         * Updates the displayed score.
+         */
+        function updateScore() {
+            currentGame.score = calculateScore();
+            currentScoreElem.textContent = currentGame.score;
+        }
+
+        /**
+         * Runs the system through various scenarios and determines success/failure.
+         * Transitions to the results screen.
+         */
+        function testSystem() {
+            clearInterval(currentGame.timerInterval); // Stop the timer
+            const mission = missions.find(m => m.id === currentGame.missionId);
+            const aggregatedStats = aggregateSystemStats(currentGame.selectedSystem);
+            currentGame.scenarioResults = []; // Clear previous results
+
+            // Define the scenarios to test
+            const scenarios = ['heavyLoad', 'cyberattack', 'complianceAudit', 'dataLoss'];
+
+            scenarios.forEach(scenarioType => {
+                let outcome = { success: true, message: "System held up well!", scenario: scenarioType };
+                let successThreshold = 0; // Base threshold for success, adjusted by mission priorities
+
+                // Determine success based on aggregated stats vs. mission priorities.
+                // These thresholds are illustrative and need fine-tuning for game balance.
+                switch (scenarioType) {
+                    case 'heavyLoad':
+                        // Performance and Scalability are key for heavy load
+                        successThreshold = (mission.priorities.performance * 2) + (mission.priorities.scalability * 2) + 10;
+                        if ((aggregatedStats.performance + aggregatedStats.scalability) < successThreshold) {
+                            outcome.success = false;
+                            outcome.message = mission.failureMessages.heavyLoad;
+                        }
+                        break;
+                    case 'cyberattack':
+                        // Security and People (trained staff, specialists) are crucial
+                        successThreshold = (mission.priorities.security * 3) + (aggregatedStats.security_software || 0) + (aggregatedStats.security_hardware || 0) + (aggregatedStats.people * 1) + 10;
+                        if (aggregatedStats.security < successThreshold) {
+                            outcome.success = false;
+                            outcome.message = mission.failureMessages.cyberattack;
+                        }
+                        break;
+                    case 'complianceAudit':
+                        // Compliance, Data Integrity, and relevant Procedures are vital
+                        successThreshold = (mission.priorities.compliance * 3) + (mission.priorities.dataIntegrity * 2) + (aggregatedStats.compliance || 0) + 10;
+                        if (aggregatedStats.compliance < successThreshold) {
+                            outcome.success = false;
+                            outcome.message = mission.failureMessages.complianceAudit;
+                        }
+                        break;
+                    case 'dataLoss':
+                        // Data Redundancy, Backup/Recovery procedures, and Data Integrity are paramount
+                        successThreshold = (mission.priorities.dataRedundancy * 2) + (mission.priorities.backupRecovery * 2) + (mission.priorities.dataIntegrity * 1.5) + 10;
+                        if ((aggregatedStats.dataRedundancy + aggregatedStats.backupRecovery + aggregatedStats.dataIntegrity) < successThreshold) {
+                            outcome.success = false;
+                            outcome.message = mission.failureMessages.dataLoss;
+                        }
+                        break;
+                }
+                currentGame.scenarioResults.push(outcome); // Store the outcome
+            });
+
+            displayResults(); // Show the results screen
+        }
+
+        /**
+         * Displays the results of the scenario tests on the results screen.
+         */
+        function displayResults() {
+            showScreen('results');
+            scenarioResultsContainer.innerHTML = ''; // Clear previous results
+            currentGame.scenarioResults.forEach(result => {
+                const div = document.createElement('div');
+                div.classList.add(result.success ? 'success' : 'failure'); // Add class based on success
+                div.innerHTML = `
+                    <h4>Scenario: ${result.scenario.charAt(0).toUpperCase() + result.scenario.slice(1).replace(/([A-Z])/g, ' $1').trim()}</h4>
+                    <p>${result.message}</p>
+                `;
+                scenarioResultsContainer.appendChild(div);
+            });
+            finalScoreElem.textContent = currentGame.score; // Display the final score
+        }
+
+        /**
+         * Displays a random hint relevant to the current mission.
+         */
+        function showHint() {
+            const mission = missions.find(m => m.id === currentGame.missionId);
+            if (mission && mission.hints && mission.hints.length > 0) {
+                const randomHint = mission.hints[Math.floor(Math.random() * mission.hints.length)];
+                hintDisplay.textContent = `Hint: ${randomHint}`;
+                hintDisplay.style.display = 'block'; // Show the hint box
+                setTimeout(() => {
+                    hintDisplay.style.display = 'none'; // Hide hint after 5 seconds
+                }, 5000);
+            } else {
+                hintDisplay.textContent = "No hints available for this mission right now.";
+                hintDisplay.style.display = 'block';
+                setTimeout(() => {
+                    hintDisplay.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        /**
+         * Displays a modal with detailed information about a component.
+         * @param {object} component - The component object to display.
+         */
+        function showComponentInfo(component) {
+            modalComponentName.textContent = component.name;
+            modalComponentDescription.textContent = component.description;
+            modalComponentStats.innerHTML = ''; // Clear previous stats
+
+            // Populate stats list
+            for (const stat in component.stats) {
+                if (component.stats[stat] > 0) { // Only show stats with a value
+                    const li = document.createElement('li');
+                    const formattedStat = stat.replace(/([A-Z])/g, ' $1').trim(); // Add space before capital letters
+                    li.textContent = `${formattedStat.charAt(0).toUpperCase() + formattedStat.slice(1)}: ${'⭐'.repeat(component.stats[stat])}`;
+                    modalComponentStats.appendChild(li);
+                }
+            }
+            componentInfoModalOverlay.classList.add('visible'); // Show the modal
+        }
+
+        /**
+         * Hides the component information modal.
+         */
+        function hideComponentInfo() {
+            componentInfoModalOverlay.classList.remove('visible');
+        }
+
+
+        // --- Event Listeners ---
+        startGameBtn.addEventListener('click', startGame);
+        testSystemBtn.addEventListener('click', testSystem);
+        restartGameBtn.addEventListener('click', () => {
+            showScreen('welcome'); // Go back to welcome screen
+            if (currentGame.timerInterval) clearInterval(currentGame.timerInterval); // Clear timer
+        });
+        hintBtn.addEventListener('click', showHint);
+        closeComponentInfoModalBtn.addEventListener('click', hideComponentInfo); // Close modal button
+
+        // Initial call to show the welcome screen when the page loads
+        showScreen('welcome');
+    </script>
+</body>
+</html>

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN 50: Presentation Master</title>
+    <style>
+        /* General Body and Container Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #6dd5ed, #2193b0); /* Softer blue gradient */
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: rgba(0, 0, 0, 0.7); /* Slightly transparent dark background */
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            border: 2px solid #a0eaff; /* Light blue border */
+            position: relative; /* For timer absolute positioning */
+        }
+
+        /* Header Styles */
+        header h1 {
+            color: #a0eaff; /* Light blue for title */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #level-display {
+            color: #ffd700; /* Gold for level */
+        }
+
+        /* Timer Styles */
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6347; /* Tomato red for timer */
+            margin-bottom: 25px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Logo and Link Container */
+        .logo-and-link-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px; /* Space between logo and link */
+        }
+
+        #game-logo {
+            max-width: 150px; /* Adjust as needed */
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .external-link {
+            font-size: 0.9em;
+            color: #a0eaff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .external-link:hover {
+            color: #6dd5ed;
+            text-decoration: underline;
+        }
+
+        /* Question and Options Area */
+        #question-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #question-text {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column for small screens */
+            gap: 15px;
+            width: 100%;
+        }
+
+        .option-button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: left; /* Align text to the left */
+        }
+
+        .option-button:hover {
+            background-color: #45a049;
+            transform: translateY(-3px);
+        }
+
+        .option-button:active {
+            background-color: #3e8e41;
+            transform: translateY(0);
+        }
+
+        /* Text Input for Intermediate Level */
+        #answer-input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        /* Feedback Styles */
+        #feedback-container {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px; /* Reserve space */
+        }
+
+        .correct {
+            color: #72ef72; /* Light green */
+        }
+
+        .incorrect {
+            color: #ff4d4d; /* Red */
+        }
+
+        /* Control Buttons */
+        .controls button, #submit-answer, .level-button {
+            background-color: #007bff; /* Blue */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 0 10px 15px; /* Spacing between buttons */
+        }
+
+        .controls button:hover, #submit-answer:hover, .level-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .controls button:disabled, #submit-answer:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Hint System */
+        #show-hint {
+            background-color: #ff8c00; /* Dark orange */
+        }
+
+        #show-hint:hover {
+            background-color: #cc7000;
+        }
+
+        #hint-text {
+            margin-top: 20px;
+            font-style: italic;
+            color: #ffeb3b; /* Yellow for hints */
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 25px;
+        }
+
+        /* Level Selection Section */
+        #level-selection {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #level-selection h2 {
+            color: #a0eaff;
+            margin-bottom: 20px;
+        }
+
+        .level-button {
+            margin: 10px;
+            background-color: #28a745; /* Green for level buttons */
+        }
+
+        .level-button:hover {
+            background-color: #218838;
+        }
+
+        /* High Scores Section */
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        footer h3 {
+            color: #a0eaff;
+            margin-bottom: 15px;
+        }
+
+        #high-scores-list {
+            list-style: none;
+            padding: 0;
+            font-size: 1em;
+            color: #ccc;
+        }
+
+        #high-scores-list li {
+            background-color: rgba(255, 255, 255, 0.08);
+            margin-bottom: 8px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>LAN 50: Presentation Master</h1>
+            <div class="scoreboard">
+                <span>Score: <span id="score">0</span></span>
+                <span id="level-display">Level: Beginner</span>
+            </div>
+        </header>
+
+        <main id="game-area">
+            <div class="timer">Time Left: <span id="countdown">20</span>s</div>
+
+            <div class="logo-and-link-container">
+                <img id="game-logo" src="assets/LOGO.jpg" alt="Game Logo">
+                <a href="https://linguistic-communication.com/" target="_blank" class="external-link">Visit for more games: linguistic-communication.com</a>
+            </div>
+
+            <div id="question-container">
+                <h2 id="question-text"></h2>
+                <div id="options-container" class="options-grid">
+                    </div>
+                <input type="text" id="answer-input" placeholder="Type your answer here..." style="display: none;">
+                <button id="submit-answer" style="display: none;">Submit Answer</button>
+            </div>
+
+            <div id="feedback-container"></div>
+
+            <div class="controls">
+                <button id="start-game">Start Game</button>
+                <button id="show-hint" style="display: none;">Show Hint</button>
+            </div>
+            <div id="hint-text" class="hint"></div>
+        </main>
+
+        <section id="level-selection" class="hidden">
+            <h2>Select Level</h2>
+            <button class="level-button" data-level="beginner">Beginner</button>
+            <button class="level-button" data-level="intermediate">Intermediate</button>
+            <button class="level-button" data-level="expert">Expert</button>
+        </section>
+
+        <footer id="high-scores-section">
+            <h3>High Scores</h3>
+            <ul id="high-scores-list">
+                </ul>
+        </footer>
+    </div>
+
+    <script>
+        // script.js
+
+        // --- Game Data ---
+        // Structure for quiz questions, answers, hints, and levels.
+        // For Intermediate level, the 'answer' field is now an array to support synonyms.
+        const quizQuestions = {
+            beginner: [
+                {
+                    question: "What is one key quality all good presenters share?",
+                    options: ["a) Perfect grammar", "b) Enthusiasm", "c) Expensive visuals", "d) Loud voice"],
+                    answer: "b) Enthusiasm",
+                    hint: "The slides emphasize a crucial emotional aspect of effective presentations."
+                },
+                {
+                    question: "Why should you use pauses during your speech?",
+                    options: ["a) To show you forgot your lines", "b) For emphasis", "c) To make the audience uncomfortable", "d) To take a breath"],
+                    answer: "b) For emphasis",
+                    hint: "Pauses are not just for breathing; they serve a specific purpose in conveying your message."
+                },
+                {
+                    question: "What is the most important part of your introduction?",
+                    options: ["a) Telling a joke", "b) Stating your purpose clearly", "c) Introducing your team", "d) Apologizing for mistakes"],
+                    answer: "b) Stating your purpose clearly",
+                    hint: "The beginning of your presentation sets the stage for what your audience will take away."
+                },
+                {
+                    question: "What is a good practice for content on visual aids?",
+                    options: ["a) Put long lines of text and read them out", "b) Use only images, not words", "c) Stick to main points and use visuals", "d) Use as many special effects as possible"],
+                    answer: "c) Stick to main points and use visuals",
+                    hint: "Visuals should *support* your message, not replace it entirely, and they should be easy to digest."
+                },
+                {
+                    question: "How should you view questions from your audience?",
+                    options: ["a) As an interruption", "b) As an opportunity to get your message across better", "c) As a sign of confusion", "d) As a reason to end early"],
+                    answer: "b) As an opportunity to get your message across better",
+                    hint: "Don't be afraid of questions; they indicate audience engagement."
+                },
+                {
+                    question: "Which of the following is a key aspect of vocal delivery?",
+                    options: ["a) Maintaining a fixed volume", "b) Varying tone, pitch, and rate", "c) Speaking as fast as possible", "d) Avoiding all gestures"],
+                    answer: "b) Varying tone, pitch, and rate",
+                    hint: "Your voice can convey emotion and emphasize points through its dynamics."
+                },
+                {
+                    question: "What is a 'hook' primarily used for in a presentation?",
+                    options: ["a) To summarize the main points", "b) To grab the audience's attention", "c) To introduce guest speakers", "d) To ask for questions"],
+                    answer: "b) To grab the audience's attention",
+                    hint: "It's the very first thing you do to make people interested."
+                },
+                {
+                    question: "When should you check your equipment for a presentation?",
+                    options: ["a) Right before you start speaking", "b) During the presentation", "c) Well in advance", "d) Only if there's a problem"],
+                    answer: "c) Well in advance",
+                    hint: "Preparation is key to avoiding technical glitches."
+                },
+                {
+                    question: "What does 'conciseness' mean in a presentation context?",
+                    options: ["a) Using many complex words", "b) Keeping your message brief and to the point", "c) Repeating information multiple times", "d) Speaking very quietly"],
+                    answer: "b) Keeping your message brief and to the point",
+                    hint: "It's about getting your message across efficiently."
+                },
+                {
+                    question: "What is an important nonverbal aspect of delivery?",
+                    options: ["a) Reading directly from slides", "b) Good eye contact with the audience", "c) Standing perfectly still", "d) Turning your back to the audience"],
+                    answer: "b) Good eye contact with the audience",
+                    hint: "Connecting visually helps build rapport."
+                }
+            ],
+            intermediate: [
+                {
+                    question: "Effective presenters should ______ filler words.",
+                    answer: ["avoid", "eliminate", "reduce"],
+                    hint: "Think about what makes a speaker sound polished and confident."
+                },
+                {
+                    question: "To attract audience attention, you can begin your presentation with a ______. (one word)",
+                    answer: ["hook", "opener"],
+                    hint: "This is something used at the very beginning to grab interest."
+                },
+                {
+                    question: "According to Cialdini's Liking principle, people like those who ______. (two words)",
+                    answer: ["like them", "like you"],
+                    hint: "It's about mutual positive regard."
+                },
+                {
+                    question: "To be concise, you should keep your sentences ______ and simple. (one word)",
+                    answer: ["short", "brief"],
+                    hint: "Avoid lengthy and complicated phrasing."
+                },
+                {
+                    question: "You should never ______ with your visuals; give people time to take them in. (one word)",
+                    answer: ["compete", "distract"],
+                    hint: "Your visuals are there to help, not to distract from your spoken words."
+                },
+                {
+                    question: "Varying your tone, pitch, and rate is part of controlling your ______ channel.",
+                    answer: ["vocal", "voice"],
+                    hint: "It's about how you sound when you speak."
+                },
+                {
+                    question: "Using ______ during your speech can create emphasis and allow the audience to process information.",
+                    answer: ["pauses", "silence"],
+                    hint: "It's a deliberate break in speaking."
+                },
+                {
+                    question: "The principle of ______ suggests people are more likely to comply with requests from perceived experts or credible sources.",
+                    answer: ["authority"],
+                    hint: "Think about who you trust for information."
+                },
+                {
+                    question: "A good conclusion should ______ your main points and provide a call to action.",
+                    answer: ["summarize", "recap", "review"],
+                    hint: "It's what you do at the very end to bring everything together."
+                },
+                {
+                    question: "Maintaining consistent and simple ______ is a key design consideration for visual aids.",
+                    answer: ["templates", "design"],
+                    hint: "It helps keep your slides looking professional and easy to follow."
+                }
+            ],
+            expert: [
+                {
+                    question: "Scenario: You are about to give a 2-minute presentation to a new client about your company's innovative project. They are a busy group, and you need to make a strong first impression. Which introduction strategy would be most effective?",
+                    options: [
+                        "a) Start with a detailed history of your company and its founders.",
+                        "b) Begin with an amazing fact or a compelling problem that your project solves for clients like them.",
+                        "c) Tell a long, personal anecdote unrelated to the project to build rapport.",
+                        "d) Apologize for taking up their time and quickly jump into complex technical details."
+                    ],
+                    answer: "b) Begin with an amazing fact or a compelling problem that your project solves for clients like them.",
+                    hint: "Effective hooks immediately grab attention."
+                },
+                {
+                    question: "Scenario: During your presentation, you notice the audience seems a bit disengaged. What vocal delivery technique would be best to re-engage them?",
+                    options: [
+                        "a) Speak in a monotone voice to maintain consistency.",
+                        "b) Increase your volume dramatically and speak faster.",
+                        "c) Vary your tone, pitch, and rate, and use strategic pauses to emphasize key points.",
+                        "d) Use more filler words to sound more conversational."
+                    ],
+                    answer: "c) Vary your tone, pitch, and rate, and use strategic pauses to emphasize key points.",
+                    hint: "Controlling your voice by varying tone, pitch, and rate, and using pauses, creates impact."
+                },
+                {
+                    question: "Scenario: You have a complex data set to present. How should you best utilize your visual aids?",
+                    options: [
+                        "a) Put the entire spreadsheet on one slide and read every number.",
+                        "b) Use a simple, uncluttered chart that visually highlights the key trends, and discuss the implications.",
+                        "c) Use a fancy animation for each data point to make it more 'interesting'.",
+                        "d) Avoid visuals altogether to keep the focus solely on your words."
+                    ],
+                    answer: "b) Use a simple, uncluttered chart that visually highlights the key trends, and discuss the implications.",
+                    hint: "Good visuals clarify and emphasize, not clutter. Focus on clarity and readability, using images over words."
+                },
+                {
+                    question: "Scenario: An audience member asks a challenging question that you didn't anticipate. What is the best way to handle it?",
+                    options: [
+                        "a) Ignore the question and quickly move to the next slide.",
+                        "b) Immediately admit you don't know and stop the presentation.",
+                        "c) Treat it as an opportunity to clarify your message, reiterate a point, or offer to follow up if you need more information.",
+                        "d) Argue with the questioner to assert your authority."
+                    ],
+                    answer: "c) Treat it as an opportunity to clarify your message, reiterate a point, or offer to follow up if you need more information.",
+                    hint: "Welcome questions; they indicate genuine interest and can be an opportunity to reinforce your message."
+                },
+                {
+                    question: "Scenario: You are trying to persuade your audience to adopt a new, slightly controversial policy. Which of Cialdini's principles could you leverage by showing testimonials from similar, respected organizations that have successfully adopted it?",
+                    options: [
+                        "a) Reciprocity",
+                        "b) Scarcity",
+                        "c) Social Proof",
+                        "d) Authority"
+                    ],
+                    answer: "c) Social Proof",
+                    hint: "People tend to follow the lead of others similar to themselves."
+                },
+                {
+                    question: "Which section of a presentation typically provides a summary of key takeaways and a call to action?",
+                    options: [
+                        "a) Introduction",
+                        "b) Body",
+                        "c) Conclusion",
+                        "d) Q&A session"
+                    ],
+                    answer: "c) Conclusion",
+                    hint: "This part is designed to leave a lasting impression and guide the audience on what to do next."
+                },
+                {
+                    question: "A sentence like 'Today, we will explore the critical impact of AI on modern business strategies.' most likely belongs in which part of a presentation?",
+                    options: [
+                        "a) Introduction",
+                        "b) Main Body",
+                        "c) Conclusion",
+                        "d) Q&A"
+                    ],
+                    answer: "a) Introduction",
+                    hint: "This sentence sets the stage and states the purpose."
+                },
+                {
+                    question: "You're discussing detailed evidence supporting your main arguments. This content primarily belongs in which part of your presentation structure?",
+                    options: [
+                        "a) Introduction",
+                        "b) Main Body",
+                        "c) Conclusion",
+                        "d) Appendix"
+                    ],
+                    answer: "b) Main Body",
+                    hint: "This is where you flesh out your arguments with supporting information."
+                },
+                {
+                    question: "To effectively manage your nonverbal communication, which of the following is most important?",
+                    options: [
+                        "a) Staying behind the podium at all times",
+                        "b) Using extravagant gestures continuously",
+                        "c) Projecting confidence, making eye contact, and occupying the space",
+                        "d) Avoiding all movement to seem serious"
+                    ],
+                    answer: "c) Projecting confidence, making eye contact, and occupying the space",
+                    hint: "Your body language speaks volumes."
+                },
+                {
+                    question: "What is the primary goal when dealing with hostile or difficult questions from the audience?",
+                    options: [
+                        "a) To argue back and win the debate",
+                        "b) To dismiss the question quickly and move on",
+                        "c) To reframe the question positively, answer concisely, and move on respectfully",
+                        "d) To ask the questioner to leave the room"
+                    ],
+                    answer: "c) To reframe the question positively, answer concisely, and move on respectfully",
+                    hint: "Handle challenging questions professionally and strategically."
+                }
+            ]
+        };
+
+        // --- Game State Variables ---
+        let currentLevel = 'beginner'; // Default level
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 0; // Will be set dynamically per level
+
+        // --- DOM Elements ---
+        const startGameBtn = document.getElementById('start-game');
+        const showHintBtn = document.getElementById('show-hint');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const answerInput = document.getElementById('answer-input');
+        const submitAnswerBtn = document.getElementById('submit-answer');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const countdownDisplay = document.getElementById('countdown');
+        const scoreDisplay = document.getElementById('score');
+        const hintText = document.getElementById('hint-text');
+        const levelSelectionSection = document.getElementById('level-selection');
+        const gameArea = document.getElementById('game-area');
+        const levelDisplay = document.getElementById('level-display');
+        const highScoresList = document.getElementById('high-scores-list');
+
+        // --- Event Listeners ---
+        startGameBtn.addEventListener('click', () => {
+            // Show level selection first
+            startGameBtn.classList.add('hidden');
+            levelSelectionSection.classList.remove('hidden');
+            gameArea.classList.add('hidden'); // Hide game area until level is chosen
+            loadHighScores(); // Load high scores on game start (or initial page load)
+        });
+
+        // Event delegation for level selection buttons
+        levelSelectionSection.addEventListener('click', (event) => {
+            if (event.target.classList.contains('level-button')) {
+                currentLevel = event.target.dataset.level;
+                levelDisplay.textContent = `Level: ${currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1)}`;
+                levelSelectionSection.classList.add('hidden');
+                gameArea.classList.remove('hidden');
+                initializeGame();
+            }
+        });
+
+        showHintBtn.addEventListener('click', displayHint);
+        submitAnswerBtn.addEventListener('click', checkAnswer); // For intermediate/expert
+
+        // --- Game Functions ---
+
+        function initializeGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            feedbackContainer.textContent = '';
+            hintText.textContent = '';
+
+            // Reset UI for the new game/level
+            showHintBtn.classList.remove('hidden'); // Show hint button for all levels initially
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Clear previous state
+            optionsContainer.innerHTML = '';
+            answerInput.value = '';
+            feedbackContainer.textContent = '';
+            hintText.textContent = '';
+            answerInput.style.display = 'none';
+            submitAnswerBtn.style.display = 'none';
+            optionsContainer.style.display = 'grid'; // Ensure options grid is visible by default
+
+            const currentQ = quizQuestions[currentLevel][currentQuestionIndex];
+
+            if (!currentQ) {
+                endGame();
+                return;
+            }
+
+            questionText.textContent = currentQ.question;
+
+            if (currentLevel === 'beginner' || currentLevel === 'expert') {
+                // Multiple choice for Beginner and Expert (scenario-based)
+                currentQ.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('option-button');
+                    button.addEventListener('click', () => checkAnswer(option));
+                    optionsContainer.appendChild(button);
+                });
+                enableOptions(true);
+            } else if (currentLevel === 'intermediate') {
+                // Fill-in-the-blank for Intermediate
+                answerInput.style.display = 'block';
+                submitAnswerBtn.style.display = 'block';
+                optionsContainer.style.display = 'none'; // Hide options container
+                answerInput.disabled = false;
+                submitAnswerBtn.disabled = false;
+            }
+
+            startTimer();
+        }
+
+        function checkAnswer(selectedAnswer) {
+            stopTimer(); // Stop timer as soon as an answer is given
+
+            const currentQ = quizQuestions[currentLevel][currentQuestionIndex];
+            let isCorrect = false;
+            let correctAnswerText = ""; // To display correct answer in feedback
+
+            if (currentLevel === 'beginner' || currentLevel === 'expert') {
+                isCorrect = (selectedAnswer === currentQ.answer);
+                correctAnswerText = currentQ.answer;
+                enableOptions(false); // Disable buttons after selection
+            } else if (currentLevel === 'intermediate') {
+                const userAnswer = answerInput.value.trim().toLowerCase();
+                // Check if user answer is in the array of acceptable answers (synonyms)
+                isCorrect = currentQ.answer.some(correctOpt => correctOpt.toLowerCase() === userAnswer);
+                correctAnswerText = currentQ.answer[0]; // Show the first acceptable answer
+                answerInput.disabled = true;
+                submitAnswerBtn.disabled = true;
+            }
+
+            if (isCorrect) {
+                feedbackContainer.textContent = 'Correct!';
+                feedbackContainer.className = 'correct';
+                score += 10; // Award points for correct answer
+            } else {
+                feedbackContainer.textContent = `Incorrect! The correct answer was: ${correctAnswerText}`;
+                feedbackContainer.className = 'incorrect';
+            }
+            scoreDisplay.textContent = score;
+
+            showHintBtn.classList.add('hidden'); // Hide hint after answer
+
+            // Automatically advance to the next question after a short delay
+            setTimeout(nextQuestion, 2000); // 2000 milliseconds = 2 seconds
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizQuestions[currentLevel].length) {
+                loadQuestion();
+                showHintBtn.classList.remove('hidden'); // Re-show hint for next question
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            stopTimer();
+            questionText.textContent = `Game Over! Your final score: ${score}`;
+            optionsContainer.innerHTML = '';
+            answerInput.style.display = 'none';
+            submitAnswerBtn.style.display = 'none';
+            showHintBtn.classList.add('hidden');
+            feedbackContainer.textContent = 'Well done! Select a level to play again.';
+            feedbackContainer.className = ''; // Clear feedback style
+            levelSelectionSection.classList.remove('hidden'); // Show level selection again
+            gameArea.classList.add('hidden');
+            hintText.textContent = ''; // Clear hint text
+
+            saveHighScore(score); // Save the current score
+            loadHighScores(); // Update high scores list
+        }
+
+        function startTimer() {
+            clearInterval(timer); // Clear any existing timer
+
+            // Set time based on current level
+            if (currentLevel === 'intermediate') {
+                timeLeft = 30;
+            } else if (currentLevel === 'expert') {
+                timeLeft = 40;
+            } else {
+                timeLeft = 20; // Default for beginner
+            }
+
+            countdownDisplay.textContent = timeLeft;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                countdownDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    const currentQ = quizQuestions[currentLevel][currentQuestionIndex];
+                    let correctAnswerText = "";
+                    if (currentLevel === 'beginner' || currentLevel === 'expert') {
+                        correctAnswerText = currentQ.answer;
+                    } else if (currentLevel === 'intermediate') {
+                        correctAnswerText = currentQ.answer[0]; // Display the first correct synonym
+                    }
+                    feedbackContainer.textContent = `Time's up! The correct answer was: ${correctAnswerText}`;
+                    feedbackContainer.className = 'incorrect';
+                    scoreDisplay.textContent = score; // Update score (no points for time out)
+                    if (currentLevel === 'beginner' || currentLevel === 'expert') {
+                        enableOptions(false);
+                    } else if (currentLevel === 'intermediate') {
+                        answerInput.disabled = true;
+                        submitAnswerBtn.disabled = true;
+                    }
+                    showHintBtn.classList.add('hidden');
+                    // Automatically advance after time out
+                    setTimeout(nextQuestion, 2000); // 2 seconds delay
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        function displayHint() {
+            const currentQ = quizQuestions[currentLevel][currentQuestionIndex];
+            hintText.textContent = currentQ.hint;
+            // Optionally disable hint button after showing, or limit uses
+            showHintBtn.disabled = true; // Disable after one use per question
+        }
+
+        function enableOptions(enable) {
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+            buttons.forEach(button => {
+                button.disabled = !enable;
+            });
+        }
+
+        // --- High Score System (Local Storage) ---
+        function saveHighScore(newScore) {
+            const highScores = JSON.parse(localStorage.getItem('lan50HighScores')) || [];
+            const playerName = prompt("Enter your name for the leaderboard:");
+            if (playerName) {
+                highScores.push({ name: playerName, score: newScore, level: currentLevel });
+                // Sort from highest to lowest score, then by level for tie-breaking
+                highScores.sort((a, b) => b.score - a.score || a.level.localeCompare(b.level));
+                // Keep only top 5 scores
+                localStorage.setItem('lan50HighScores', JSON.stringify(highScores.slice(0, 5)));
+            }
+        }
+
+        function loadHighScores() {
+            const highScores = JSON.parse(localStorage.getItem('lan50HighScores')) || [];
+            highScoresList.innerHTML = ''; // Clear current list
+
+            if (highScores.length === 0) {
+                highScoresList.innerHTML = '<li>No high scores yet. Play to set one!</li>';
+                return;
+            }
+
+            highScores.forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${entry.name} - ${entry.score} (${entry.level})`;
+                highScoresList.appendChild(listItem);
+            });
+        }
+
+        // Initial load of high scores when the page loads
+        document.addEventListener('DOMContentLoaded', loadHighScores);
+    </script>
+</body>
+</html>

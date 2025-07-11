@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Architect: Build Your Rig</title>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a2e; /* Dark background for techy feel */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #e0e0e0; /* Light text for contrast */
+        }
+
+        /* Game Container */
+        #game-container {
+            background-color: #0f0f1a; /* Even darker inner background */
+            border-radius: 16px; /* More rounded */
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.2); /* Neon glow effect */
+            width: 100%;
+            max-width: 1500px; /* Wider layout */
+            padding: 40px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #00ffff; /* Neon border */
+        }
+
+        /* Screen Transitions */
+        .game-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        }
+
+        .game-screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons - Neon Style */
+        button {
+            background-color: #00ffff; /* Neon blue */
+            color: #1a1a2e; /* Dark text on neon */
+            padding: 14px 30px; /* Larger padding */
+            border: none;
+            border-radius: 10px; /* More rounded */
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700; /* Bolder font */
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, color 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5); /* Initial glow */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #00e6e6; /* Slightly darker neon on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.3); /* Stronger glow */
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        button:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Welcome & Mission Select & Results Screens */
+        #welcome-screen, #mission-select-screen, #quiz-screen, #results-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        #welcome-screen h1 {
+            font-size: 3.5em;
+            color: #00ffff; /* Neon blue heading */
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        #welcome-screen p {
+            font-size: 1.3em;
+            color: #b0b0b0;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #mission-select-screen h2, #quiz-screen h2, #results-screen h2 {
+            font-size: 2.8em;
+            color: #00ffff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+        }
+
+        #client-briefs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .client-brief {
+            border: 1px solid #008080; /* Darker neon border */
+            border-radius: 12px;
+            padding: 30px;
+            text-align: left;
+            background-color: #1a1a2e;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .client-brief:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 255, 255, 0.3);
+        }
+
+        .client-brief h3 {
+            margin-top: 0;
+            color: #00ffff;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .client-brief p {
+            font-size: 1em;
+            line-height: 1.7;
+            color: #c0c0c0;
+            margin-bottom: 20px;
+        }
+
+        .client-brief h4 {
+            color: #00e6e6;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .client-brief ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0;
+            font-size: 0.95em;
+        }
+
+        .client-brief ul li {
+            margin-bottom: 8px;
+            color: #d0d0d0;
+        }
+
+        .client-brief button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px 0;
+            font-size: 1.1em;
+        }
+
+        /* Build Phase Screen - New Layout */
+        #build-phase-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        #build-phase-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #008080;
+        }
+
+        #build-phase-header #your-mission-box-hw {
+            background-color: #1a1a2e;
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            padding: 15px 25px;
+            font-size: 0.95em;
+            flex-grow: 1;
+            margin-right: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        #build-phase-header #your-mission-box-hw h3 {
+            margin-top: 0;
+            color: #00ffff;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        #build-phase-header .game-stats {
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 1.2em;
+            background-color: #003333;
+            border-radius: 10px;
+            padding: 12px 20px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .build-area-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .component-selection-area {
+            flex: 1;
+            min-width: 350px;
+            background-color: #1a1a2e;
+            border: 1px solid #008080;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #005050;
+            padding-bottom: 10px;
+        }
+
+        .category-tab-btn {
+            background-color: #333;
+            color: #00ffff;
+            padding: 10px 15px;
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            font-size: 0.95em;
+        }
+
+        .category-tab-btn.active, .category-tab-btn:hover {
+            background-color: #00ffff;
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        #component-list-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .draggable-component-new {
+            background-color: #2a2a4a;
+            border: 1px solid #008080;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: grab;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: #e0e0e0;
+        }
+
+        .draggable-component-new:hover {
+            background-color: #3a3a5a;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .draggable-component-new:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .draggable-component-new.dragging {
+            opacity: 0.6;
+            border-style: dashed;
+            border-color: #00ffff;
+        }
+
+        .rig-assembly-area {
+            flex: 2; /* Takes more space */
+            min-width: 450px;
+            background-color: #1a1a2e;
+            border: 1px solid #008080;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two columns for slots */
+            gap: 20px;
+        }
+
+        .rig-slot-area {
+            background-color: #0f0f1a;
+            border: 2px dashed #005050; /* Dashed border for empty slots */
+            border-radius: 10px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            text-align: center;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            position: relative;
+        }
+
+        .rig-slot-area.hover {
+            background-color: #003333;
+            border-color: #00ffff;
+        }
+
+        .rig-slot-area h5 {
+            margin: 0 0 10px 0;
+            color: #00ffff;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .selected-component-in-rig {
+            background-color: #006666; /* Dark teal for selected component */
+            border: 1px solid #00ffff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #e0e0e0;
+            width: calc(100% - 30px); /* Adjust for padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .remove-component-btn-new {
+            background: none;
+            border: none;
+            color: #ff6666; /* Reddish for remove */
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.5em;
+            padding: 0 5px;
+            transition: color 0.2s ease;
+        }
+        .remove-component-btn-new:hover {
+            color: #ff0000;
+        }
+
+        .hint-box-new {
+            background-color: #333;
+            border: 1px solid #00ffff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #00ffff;
+            font-size: 1em;
+            font-weight: 500;
+            display: none;
+            animation: slideInTop 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        /* Quiz Screen */
+        #quiz-questions {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .quiz-question {
+            background-color: #1a1a2e;
+            border: 1px solid #008080;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.1);
+        }
+
+        .quiz-question p {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .quiz-options label {
+            display: block;
+            background-color: #2a2a4a;
+            border: 1px solid #005050;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            color: #c0c0c0;
+            font-size: 1.05em;
+        }
+
+        .quiz-options label:hover {
+            background-color: #3a3a5a;
+            border-color: #00ffff;
+        }
+
+        .quiz-options input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2); /* Larger radio buttons */
+        }
+
+        .quiz-options input[type="radio"]:checked + span {
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        /* Results Screen Styling */
+        #scenario-results-hw {
+            margin-top: 30px;
+        }
+
+        #scenario-results-hw div {
+            background-color: #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        #scenario-results-hw div h4 {
+            margin-top: 0;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #00ffff;
+        }
+
+        #scenario-results-hw div.success {
+            background-color: #004d4d; /* Darker teal for success */
+            color: #e0ffff;
+            border: 1px solid #00ffff;
+        }
+
+        #scenario-results-hw div.failure {
+            background-color: #660000; /* Darker red for failure */
+            color: #ffcccc;
+            border: 1px solid #ff0000;
+        }
+
+        #final-score-hw {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00ffff;
+            margin-top: 30px;
+            display: block;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .build-area-content {
+                flex-direction: column;
+            }
+            .component-selection-area, .rig-assembly-area {
+                min-width: unset;
+                width: 100%;
+            }
+            .rig-assembly-area {
+                grid-template-columns: 1fr; /* Single column for slots on smaller screens */
+            }
+            #build-phase-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #build-phase-header #your-mission-box-hw {
+                margin-right: 0;
+                width: 100%;
+            }
+            #build-phase-header .game-stats {
+                width: 100%;
+                text-align: center;
+                margin-top: 15px;
+            }
+            button {
+                width: 100%;
+                padding: 12px 0;
+            }
+        }
+
+        /* --- Component Info Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .component-info-modal {
+            background-color: #1a1a2e;
+            border-radius: 16px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px; /* Wider modal */
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5); /* Neon glow */
+            transform: translateY(-30px);
+            transition: transform 0.3s ease;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid #00ffff; /* Neon border */
+            color: #e0e0e0;
+        }
+
+        .modal-overlay.visible .component-info-modal {
+            transform: translateY(0);
+        }
+
+        .component-info-modal h3 {
+            color: #00ffff;
+            font-size: 2.5em;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #008080;
+            padding-bottom: 15px;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .component-info-modal p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #c0c0c0;
+            margin-bottom: 25px;
+        }
+
+        .component-info-modal h4 {
+            color: #00e6e6;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #005050;
+            padding-bottom: 5px;
+        }
+
+        .component-stats-list-modal, .component-specs-list-modal, .component-uses-list-modal {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 25px;
+            display: grid; /* Use grid for stats */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .component-stats-list-modal li, .component-specs-list-modal li, .component-uses-list-modal li {
+            background-color: #003333; /* Dark teal background */
+            border: 1px solid #008080;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            color: #e0ffff; /* Light neon text */
+            font-weight: 600;
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        .component-uses-list-modal {
+            display: block; /* Uses list is a block */
+        }
+        .component-uses-list-modal li {
+            margin-bottom: 8px;
+        }
+
+
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2.5em;
+            color: #ff6666; /* Reddish X */
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+            margin-top: 0;
+        }
+
+        .close-modal-btn:hover {
+            background-color: #330000;
+            color: #ff0000;
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="game-screen active">
+            <h1>Hardware Architect: Build Your Rig!</h1>
+            <p>Step into the world of PC building! Learn about CPUs, GPUs, RAM, and more as you design custom computer systems for demanding clients. Understand how each component works and affects overall performance.</p>
+            <button id="start-game-btn-hw">Start Your Build</button>
+        </div>
+
+        <!-- Mission Select Screen -->
+        <div id="mission-select-screen" class="game-screen">
+            <h2>Select Your Client Brief</h2>
+            <div id="client-briefs">
+                <!-- Client briefs will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Build Phase Screen -->
+        <div id="build-phase-screen" class="game-screen">
+            <div id="build-phase-header">
+                <div id="your-mission-box-hw">
+                    <h3>Your Mission:</h3>
+                    <p id="current-mission-brief-hw"></p>
+                    <p><strong>Priorities:</strong> <span id="current-mission-priorities-hw"></span></p>
+                </div>
+                <div class="game-stats">
+                    Time Left: <span id="time-left-hw">180</span>s | Score: <span id="current-score-hw">0</span>
+                </div>
+            </div>
+
+            <div class="build-area-content">
+                <div class="component-selection-area">
+                    <h3>Available Components</h3>
+                    <div class="category-tabs">
+                        <button class="category-tab-btn active" data-category="cpu">CPUs</button>
+                        <button class="category-tab-btn" data-category="gpu">GPUs</button>
+                        <button class="category-tab-btn" data-category="ram">RAM</button>
+                        <button class="category-tab-btn" data-category="storage">Storage</button>
+                        <button class="category-tab-btn" data-category="motherboard">Motherboards</button>
+                        <button class="category-tab-btn" data-category="psu">PSUs</button>
+                        <button class="category-tab-btn" data-category="cooling">Cooling</button>
+                    </div>
+                    <div id="component-list-display">
+                        <!-- Components for the active category will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="rig-assembly-area">
+                    <h3>Your Custom Rig</h3>
+                    <div class="rig-slot-area" data-slot="cpu" data-category="cpu">
+                        <h5>CPU Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="cpu" data-category="cpu">Drag CPU Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="gpu" data-category="gpu">
+                        <h5>GPU Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="gpu" data-category="gpu">Drag GPU Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="ram" data-category="ram">
+                        <h5>RAM Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="ram" data-category="ram">Drag RAM Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="storage" data-category="storage">
+                        <h5>Storage Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="storage" data-category="storage">Drag Storage Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="motherboard" data-category="motherboard">
+                        <h5>Motherboard Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="motherboard" data-category="motherboard">Drag Motherboard Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="psu" data-category="psu">
+                        <h5>PSU Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="psu" data-category="psu">Drag PSU Here</div>
+                    </div>
+                    <div class="rig-slot-area" data-slot="cooling" data-category="cooling">
+                        <h5>Cooling Slot</h5>
+                        <div class="selected-component-in-rig empty" data-slot="cooling" data-category="cooling">Drag Cooling Here</div>
+                    </div>
+                </div>
+            </div>
+            <button id="proceed-to-quiz-btn-hw" disabled>Proceed to Quiz</button>
+            <button id="hint-btn-hw">Get a Hint</button>
+            <div id="hint-display-hw" class="hint-box-new"></div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="game-screen">
+            <h2>Hardware Knowledge Quiz</h2>
+            <div id="quiz-questions">
+                <!-- Quiz questions will be dynamically loaded here -->
+            </div>
+            <button id="submit-quiz-btn-hw">Submit Quiz</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="game-screen">
+            <h2>Rig Test Results</h2>
+            <div id="scenario-results-hw">
+                <!-- Results will be displayed here -->
+            </div>
+            <p>Final Score: <span id="final-score-hw"></span></p>
+            <button id="restart-game-btn-hw">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Component Info Modal -->
+    <div id="component-info-modal-overlay-hw" class="modal-overlay">
+        <div class="component-info-modal">
+            <button class="close-modal-btn" id="close-component-info-modal-hw">&times;</button>
+            <h3 id="modal-component-name-hw"></h3>
+            <p id="modal-component-description-hw"></p>
+            <h4>Key Uses & Learning:</h4>
+            <ul id="modal-component-uses-hw" class="component-uses-list-modal">
+                <!-- Uses will be dynamically loaded here -->
+            </ul>
+            <h4>Specifications:</h4>
+            <ul id="modal-component-specs-hw" class="component-specs-list-modal">
+                <!-- Specs will be dynamically loaded here -->
+            </ul>
+            <h4>Performance Stats:</h4>
+            <ul id="modal-component-stats-hw" class="component-stats-list-modal">
+                <!-- Stats will be dynamically loaded here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Data ---
+        // Defines all available hardware components across different categories.
+        // Each component has an ID, name, description, 'uses' (learning objectives),
+        // 'specs' (technical details), and 'stats' (performance, cost, etc. on a 1-5 scale).
+        // 'category' helps organize components, and 'slot' defines where it can be placed.
+        const hardwareComponents = {
+            cpu: [
+                { id: 'cpu_basic', name: 'Entry-Level CPU (Dual-Core)', description: 'A dual-core processor suitable for basic office tasks, web browsing, and light multimedia.', uses: ["Everyday computing (web browsing, email)", "Word processing and spreadsheets", "Light photo editing", "Streaming videos"], specs: { cores: '2', threads: '4', clockSpeed: '2.5GHz', tdp: '65W', socket: 'AM4/LGA1200' }, stats: { performance: 2, cost: 1, powerEfficiency: 4, reliability: 4 }, category: 'cpu', slot: 'cpu' },
+                { id: 'cpu_midrange', name: 'Mid-Range CPU (Hexa-Core)', description: 'A versatile six-core processor offering a good balance of performance for gaming, content creation, and everyday multitasking. Excellent value.', uses: ["Modern gaming at 1080p", "Mid-level content creation (video editing, graphic design)", "Running multiple applications simultaneously", "Virtualization (light)"], specs: { cores: '6', threads: '12', clockSpeed: '3.8GHz', tdp: '95W', socket: 'AM4/LGA1200' }, stats: { performance: 4, cost: 3, powerEfficiency: 3, reliability: 4 }, category: 'cpu', slot: 'cpu' },
+                { id: 'cpu_high_end', name: 'High-End CPU (Octa-Core)', description: 'An eight-core powerhouse designed for professional content creation, heavy gaming, and running multiple virtual machines. Top-tier performance comes at a premium.', uses: ["Professional video editing and 3D rendering", "High-refresh rate 1440p/4K gaming", "Complex scientific simulations", "Heavy multitasking and multiple virtual machines"], specs: { cores: '8', threads: '16', clockSpeed: '4.5GHz', tdp: '125W', socket: 'AM4/LGA1200' }, stats: { performance: 5, cost: 5, powerEfficiency: 2, reliability: 5 }, category: 'cpu', slot: 'cpu' }
+            ],
+            gpu: [
+                { id: 'gpu_integrated', name: 'Integrated Graphics (iGPU)', description: 'Graphics processing unit built directly into the CPU. Sufficient for basic display output, streaming video, and very light gaming.', uses: ["Basic display output for office PCs", "Streaming 1080p/4K video", "Very light, older games", "Power-efficient builds"], specs: { vram: 'Shared', performanceClass: 'Entry-Level', powerDraw: 'Low' }, stats: { performance: 1, cost: 0, powerEfficiency: 5, reliability: 5 }, category: 'gpu', slot: 'gpu' },
+                { id: 'gpu_midrange', name: 'Mid-Range Gaming GPU (8GB)', description: 'A dedicated graphics card with 8GB of VRAM, capable of running most modern games at 1080p resolution with high settings, or 1440p at medium settings.', uses: ["Modern gaming at 1080p/1440p", "Entry-level content creation (e.g., video editing)", "VR gaming (basic)", "Driving multiple monitors"], specs: { vram: '8GB GDDR6', performanceClass: 'Mid-Range', powerDraw: 'Moderate' }, stats: { performance: 3, cost: 3, powerEfficiency: 3, reliability: 4 }, category: 'gpu', slot: 'gpu' },
+                { id: 'gpu_high_end', name: 'High-End Gaming GPU (16GB)', description: 'A top-tier dedicated graphics card with 16GB of VRAM, delivering excellent performance for 4K gaming, VR, and professional rendering tasks. Requires significant power.', uses: ["4K gaming at high refresh rates", "Professional video editing, 3D modeling, rendering", "Advanced VR applications", "Machine learning and AI development"], specs: { vram: '16GB GDDR6X', performanceClass: 'High-End', powerDraw: 'High' }, stats: { performance: 5, cost: 5, powerEfficiency: 1, reliability: 5 }, category: 'gpu', slot: 'gpu' }
+            ],
+            ram: [
+                { id: 'ram_8gb', name: '8GB DDR4 RAM (2x4GB)', description: '8 Gigabytes of DDR4 memory, sufficient for basic multitasking, web browsing, and older games. May become a bottleneck with many applications open.', uses: ["Basic office tasks", "Web browsing with few tabs", "Older or less demanding games", "Operating system and essential applications"], specs: { capacity: '8GB', type: 'DDR4', speed: '3200MHz' }, stats: { performance: 2, cost: 1, powerEfficiency: 4, reliability: 4 }, category: 'ram', slot: 'ram' },
+                { id: 'ram_16gb', name: '16GB DDR4 RAM (2x8GB)', description: '16 Gigabytes of DDR4 memory, the sweet spot for most modern gaming and demanding applications. Allows for smoother multitasking and better game performance.', uses: ["Modern gaming (most titles)", "Mid-level content creation", "Running multiple applications simultaneously", "General purpose computing"], specs: { capacity: '16GB', type: 'DDR4', speed: '3600MHz' }, stats: { performance: 4, cost: 3, powerEfficiency: 3, reliability: 4 }, category: 'ram', slot: 'ram' },
+                { id: 'ram_32gb', name: '32GB DDR4 RAM (2x16GB)', description: '32 Gigabytes of high-speed DDR4 memory, ideal for professional workstations, heavy content creation, virtual machines, and future-proofing high-end gaming rigs.', uses: ["Professional video/photo editing", "3D modeling and animation", "Running multiple virtual machines", "Large dataset analysis (data science)", "Future-proofing high-end gaming"], specs: { capacity: '32GB', type: 'DDR4', speed: '4000MHz' }, stats: { performance: 5, cost: 5, powerEfficiency: 2, reliability: 5 }, category: 'ram', slot: 'ram' }
+            ],
+            storage: [
+                { id: 'storage_hdd_1tb', name: '1TB HDD', description: 'A 1 Terabyte Hard Disk Drive. Offers large capacity at a low cost, but significantly slower than SSDs. Best for mass storage of files, not for operating systems or frequently accessed programs.', uses: ["Mass storage for large files (photos, videos)", "Archival data", "Backup drive", "Budget builds"], specs: { type: 'HDD', capacity: '1TB', speed: '7200RPM' }, stats: { performance: 1, cost: 1, powerEfficiency: 3, reliability: 3 }, category: 'storage', slot: 'storage' },
+                { id: 'storage_ssd_500gb', name: '500GB SATA SSD', description: 'A 500 Gigabyte Solid State Drive using the SATA interface. Much faster than HDDs, providing quick boot times and application loading. Good for an OS and a few games/applications.', uses: ["Operating system drive", "Primary drive for frequently used applications", "Faster boot times", "General purpose computing"], specs: { type: 'SATA SSD', capacity: '500GB', speed: '550MB/s' }, stats: { performance: 3, cost: 2, powerEfficiency: 4, reliability: 4 }, category: 'storage', slot: 'storage' },
+                { id: 'storage_nvme_1tb', name: '1TB NVMe SSD', description: 'A 1 Terabyte NVMe Solid State Drive. The fastest consumer storage solution available, ideal for high-performance gaming, video editing, and large file transfers. Connects directly to the motherboard via PCIe.', uses: ["Ultra-fast OS and application loading", "High-performance gaming (reduces load times)", "Professional video editing (scratch disk)", "Large file transfers and data analysis"], specs: { type: 'NVMe SSD', capacity: '1TB', speed: '3500MB/s+' }, stats: { performance: 5, cost: 4, powerEfficiency: 5, reliability: 5 }, category: 'storage', slot: 'storage' }
+            ],
+            motherboard: [
+                { id: 'mobo_basic', name: 'Basic Motherboard', description: 'An entry-level motherboard with essential features. Suitable for budget builds, but may have limited expansion slots, fewer USB ports, and basic power delivery.', uses: ["Budget PC builds", "Basic office computers", "Systems with integrated graphics", "Non-overclocked CPUs"], specs: { formFactor: 'Micro-ATX', chipset: 'B450/H410', ramSlots: '2', pcieSlots: '1' }, stats: { performance: 2, cost: 1, reliability: 3, compatibility: 3 }, category: 'motherboard', slot: 'motherboard' },
+                { id: 'mobo_midrange', name: 'Mid-Range Motherboard', description: 'A balanced motherboard offering a good set of features for most users, including more expansion options, better VRMs for overclocking, and improved connectivity.', uses: ["Mainstream gaming PCs", "Mid-range content creation builds", "Light to moderate overclocking", "Systems requiring more USB/SATA ports"], specs: { formFactor: 'ATX', chipset: 'B550/Z490', ramSlots: '4', pcieSlots: '2' }, stats: { performance: 3, cost: 3, reliability: 4, compatibility: 4 }, category: 'motherboard', slot: 'motherboard' },
+                { id: 'mobo_high_end', name: 'High-End Motherboard', description: 'A premium motherboard with advanced features like robust power delivery, extensive connectivity (Wi-Fi 6E, multiple M.2 slots), and enthusiast-grade components. Ideal for high-end builds and overclocking.', uses: ["High-end gaming PCs", "Professional workstations", "Extreme overclocking", "Multiple GPU configurations", "Advanced connectivity needs (Thunderbolt, Wi-Fi 6E)"], specs: { formFactor: 'ATX', chipset: 'X570/Z590', ramSlots: '4', pcieSlots: '3+' }, stats: { performance: 4, cost: 5, reliability: 5, compatibility: 5 }, category: 'motherboard', slot: 'motherboard' }
+            ],
+            psu: [
+                { id: 'psu_450w', name: '450W Bronze PSU', description: 'A 450 Watt power supply unit with 80 PLUS Bronze efficiency. Sufficient for basic systems with integrated graphics or low-power dedicated GPUs.', uses: ["Basic office PCs", "Systems with integrated graphics", "Low-power gaming builds", "Budget-conscious builds"], specs: { wattage: '450W', efficiency: 'Bronze', modularity: 'Non-Modular' }, stats: { performance: 2, cost: 1, powerEfficiency: 3, reliability: 3 }, category: 'psu', slot: 'psu' },
+                { id: 'psu_650w', name: '650W Gold PSU', description: 'A 650 Watt power supply unit with 80 PLUS Gold efficiency. Provides ample power for most gaming rigs with mid-range to high-end GPUs, offering good efficiency.', uses: ["Most gaming PCs (mid-range to high-end GPUs)", "General purpose workstations", "Good balance of efficiency and cost", "Semi-modular for easier cable management"], specs: { wattage: '650W', efficiency: 'Gold', modularity: 'Semi-Modular' }, stats: { performance: 4, cost: 3, powerEfficiency: 4, reliability: 4 }, category: 'psu', slot: 'psu' },
+                { id: 'psu_850w', name: '850W Platinum PSU', description: 'An 850 Watt power supply unit with 80 PLUS Platinum efficiency. Designed for high-end systems with multiple GPUs or extreme overclocking, offering superior power delivery and efficiency.', uses: ["High-end gaming PCs (multiple GPUs/overclocking)", "Professional workstations with powerful components", "Maximum power efficiency and stability", "Fully modular for pristine cable management"], specs: { wattage: '850W', efficiency: 'Platinum', modularity: 'Fully Modular' }, stats: { performance: 5, cost: 5, powerEfficiency: 5, reliability: 5 }, category: 'psu', slot: 'psu' }
+            ],
+            cooling: [
+                { id: 'cooling_stock', name: 'Stock CPU Cooler', description: 'The basic cooler included with many CPUs. Adequate for light use and non-overclocked CPUs, but can struggle under heavy loads, leading to thermal throttling.', uses: ["Budget builds where cost is critical", "CPUs with low TDP (Thermal Design Power)", "Basic office PCs", "Non-overclocked systems"], specs: { type: 'Air', noiseLevel: 'High', tdpSupport: 'Low' }, stats: { performance: 1, cost: 0, noise: 1, reliability: 3 }, category: 'cooling', slot: 'cooling' },
+                { id: 'cooling_air_tower', name: 'Aftermarket Air Cooler', description: 'A larger, more efficient air cooler than stock, using heat pipes and a larger fan. Provides better thermal performance and lower noise levels for most CPUs, even with light overclocking.', uses: ["Most gaming PCs (mid-range CPUs)", "Light to moderate CPU overclocking", "Quieter operation than stock coolers", "Good balance of performance and cost"], specs: { type: 'Air Tower', noiseLevel: 'Medium', tdpSupport: 'Medium' }, stats: { performance: 3, cost: 2, noise: 3, reliability: 4 }, category: 'cooling', slot: 'cooling' },
+                { id: 'cooling_aio_liquid', name: 'AIO Liquid Cooler (240mm)', description: 'An All-In-One (AIO) liquid cooler. Offers superior cooling performance and quieter operation compared to air coolers, especially for high-end CPUs or overclocking. More complex installation.', uses: ["High-end gaming PCs (powerful CPUs)", "Heavy CPU overclocking", "Professional workstations (sustained loads)", "Aesthetic builds (cleaner look)"], specs: { type: 'Liquid AIO', noiseLevel: 'Low', tdpSupport: 'High' }, stats: { performance: 5, cost: 4, noise: 5, reliability: 4 }, category: 'cooling', slot: 'cooling' }
+            ]
+        };
+
+        // Mission data for Hardware Architect game
+        const hardwareMissions = [
+            {
+                id: 'gaming_pc',
+                clientName: 'Gaming PC Enthusiast',
+                brief: 'Build a high-performance gaming rig capable of running the latest AAA titles smoothly at 1440p resolution. Frame rates are king!',
+                priorities: { performance: 5, cost: 3, powerEfficiency: 2, reliability: 4, noise: 2 },
+                failureMessages: {
+                    performance: "Your rig is lagging worse than dial-up internet! The frames per second are in the single digits. Maybe try playing solitaire instead.",
+                    power: "The power supply just exploded! Your rig tried to draw too much juice and now smells like burnt toast.",
+                    thermals: "Overheating! Your CPU is throttling harder than a bad internet connection. Did you forget the thermal paste, or just use a twig?",
+                    compatibility: "BSOD! The components are fighting each other. Looks like you tried to put a square peg in a round hole."
+                },
+                hints: [
+                    "Focus on a powerful **GPU** and **CPU** for gaming performance.",
+                    "Ensure you have enough **RAM** for smooth gameplay, 16GB is a good start.",
+                    "An **SSD** (especially NVMe) will drastically improve game loading times.",
+                    "Don't skimp on **cooling** if you pick high-performance parts.",
+                    "Choose a **PSU** with enough wattage to power your selected components."
+                ]
+            },
+            {
+                id: 'office_workstation',
+                clientName: 'Small Business Office Workstation',
+                brief: 'Design a reliable and cost-effective workstation for general office tasks, document processing, and video conferencing. Reliability and low power consumption are key.',
+                priorities: { reliability: 5, cost: 4, powerEfficiency: 4, performance: 2, noise: 3 },
+                failureMessages: {
+                    performance: "Your workstation is slower than a snail stuck in molasses! The boss is complaining about lag during video calls.",
+                    power: "The office circuit breaker just tripped! Your 'energy-efficient' build is drawing too much power.",
+                    thermals: "The workstation sounds like a jet engine taking off! Colleagues are complaining about the noise.",
+                    compatibility: "System crash! The components just aren't playing nice. Time to call IT (which is you!)."
+                },
+                hints: [
+                    "Prioritize **reliability** and **cost-effectiveness**.",
+                    "An **integrated GPU** might be sufficient, saving on cost and power.",
+                    "A modest **CPU** and sufficient **RAM** (8GB-16GB) should handle office tasks.",
+                    "Consider an **SSD** for quick boot times, even a smaller SATA one.",
+                    "Choose a **power-efficient PSU** and a quiet **cooling** solution."
+                ]
+            },
+            {
+                id: 'data_science_rig',
+                clientName: 'Data Scientist Workstation',
+                brief: 'Build a powerful workstation for complex data analysis, machine learning model training, and large dataset manipulation. Raw processing power and ample memory are critical.',
+                priorities: { performance: 5, ramCapacity: 5, storageCapacity: 4, reliability: 4, cost: 2, powerEfficiency: 1 },
+                failureMessages: {
+                    performance: "Data processing failed! Your rig choked on the dataset. Looks like your models will be training until next year.",
+                    power: "Blackout! The power draw from your components overloaded the system. Maybe try a smaller dataset next time.",
+                    thermals: "The workstation is emitting smoke! You've turned your office into a sauna. Better open a window.",
+                    compatibility: "Kernel panic! Your hardware configuration is unstable. Did you even check the motherboard manual?"
+                },
+                hints: [
+                    "Invest heavily in a high-core **CPU** and a powerful **GPU** for computation.",
+                    "Maximize **RAM capacity** (32GB or more) for handling large datasets.",
+                    "Fast, high-capacity **NVMe SSDs** are essential for data loading.",
+                    "Ensure adequate **cooling** for sustained heavy workloads.",
+                    "Choose a **PSU** that can provide sufficient power for all high-end components."
+                ]
+            }
+        ];
+
+        // Quiz Questions for Hardware Architect game
+        const quizQuestions = [
+            {
+                question: "What is the primary function of a CPU (Central Processing Unit)?",
+                options: [
+                    "Stores long-term data",
+                    "Executes instructions and performs calculations",
+                    "Generates graphics for display",
+                    "Provides power to components"
+                ],
+                answer: "Executes instructions and performs calculations",
+                explanation: "The CPU is the 'brain' of the computer, responsible for carrying out most of the instructions of a computer program."
+            },
+            {
+                question: "Which component is primarily responsible for rendering graphics and video output?",
+                options: [
+                    "RAM",
+                    "Motherboard",
+                    "GPU",
+                    "HDD"
+                ],
+                answer: "GPU",
+                explanation: "The GPU (Graphics Processing Unit) specializes in rendering images, animations, and videos, making it crucial for gaming and visual tasks."
+            },
+            {
+                question: "What type of memory is used for short-term data storage, allowing quick access for the CPU?",
+                options: [
+                    "SSD",
+                    "HDD",
+                    "RAM",
+                    "ROM"
+                ],
+                answer: "RAM",
+                explanation: "RAM (Random Access Memory) is volatile memory used to temporarily store data that the CPU is actively using, enabling fast access."
+            },
+            {
+                question: "Which storage device offers the fastest read/write speeds for an operating system and applications?",
+                options: [
+                    "HDD",
+                    "SATA SSD",
+                    "NVMe SSD",
+                    "USB Flash Drive"
+                ],
+                answer: "NVMe SSD",
+                explanation: "NVMe SSDs connect directly to the motherboard via PCIe, offering significantly faster data transfer speeds compared to SATA SSDs and traditional HDDs."
+            },
+            {
+                question: "What is the main purpose of a Power Supply Unit (PSU)?",
+                options: [
+                    "Cools the CPU",
+                    "Connects all components together",
+                    "Converts AC power from the wall into DC power for components",
+                    "Stores BIOS settings"
+                ],
+                answer: "Converts AC power from the wall into DC power for components",
+                explanation: "The PSU supplies electrical power to all the components within the computer, converting household AC power into usable DC power."
+            }
+        ];
+
+
+        // --- Game State Variables ---
+        let currentGameHW = {
+            screen: 'welcome',
+            missionId: null,
+            selectedRig: { // Stores selected hardware components
+                cpu: null,
+                gpu: null,
+                ram: null,
+                storage: null,
+                motherboard: null,
+                psu: null,
+                cooling: null
+            },
+            score: 0,
+            timeLeft: 180, // 3 minutes for build phase
+            timerInterval: null,
+            quizScore: 0,
+            scenarioResults: []
+        };
+
+        // --- DOM Elements ---
+        const screensHW = {
+            welcome: document.getElementById('welcome-screen'),
+            missionSelect: document.getElementById('mission-select-screen'),
+            buildPhase: document.getElementById('build-phase-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            results: document.getElementById('results-screen')
+        };
+
+        const startGameBtnHW = document.getElementById('start-game-btn-hw');
+        const clientBriefsContainerHW = document.getElementById('client-briefs');
+        const currentMissionBriefElemHW = document.getElementById('current-mission-brief-hw');
+        const currentMissionPrioritiesElemHW = document.getElementById('current-mission-priorities-hw');
+        const timeLeftElemHW = document.getElementById('time-left-hw');
+        const currentScoreElemHW = document.getElementById('current-score-hw');
+        const proceedToQuizBtnHW = document.getElementById('proceed-to-quiz-btn-hw');
+        const hintBtnHW = document.getElementById('hint-btn-hw');
+        const hintDisplayHW = document.getElementById('hint-display-hw');
+        const quizQuestionsContainerHW = document.getElementById('quiz-questions');
+        const submitQuizBtnHW = document.getElementById('submit-quiz-btn-hw');
+        const scenarioResultsContainerHW = document.getElementById('scenario-results-hw');
+        const finalScoreElemHW = document.getElementById('final-score-hw');
+        const restartGameBtnHW = document.getElementById('restart-game-btn-hw');
+
+        // Build Phase specific elements
+        const categoryTabsContainerHW = document.querySelector('.category-tabs');
+        const componentListDisplayHW = document.getElementById('component-list-display');
+        const rigSlotAreasHW = document.querySelectorAll('.rig-slot-area'); // Select all rig slots
+
+        // Modal Elements
+        const componentInfoModalOverlayHW = document.getElementById('component-info-modal-overlay-hw');
+        const closeComponentInfoModalBtnHW = document.getElementById('close-component-info-modal-hw');
+        const modalComponentNameHW = document.getElementById('modal-component-name-hw');
+        const modalComponentDescriptionHW = document.getElementById('modal-component-description-hw');
+        const modalComponentUsesHW = document.getElementById('modal-component-uses-hw'); // New element for Uses
+        const modalComponentStatsHW = document.getElementById('modal-component-stats-hw');
+        const modalComponentSpecsHW = document.getElementById('modal-component-specs-hw');
+
+
+        // --- Game Functions ---
+
+        /**
+         * Switches the active screen displayed to the user.
+         * @param {string} screenName - The ID of the screen to show (e.g., 'welcome', 'buildPhase').
+         */
+        function showScreenHW(screenName) {
+            Object.values(screensHW).forEach(screen => screen.classList.remove('active'));
+            screensHW[screenName].classList.add('active');
+            currentGameHW.screen = screenName;
+        }
+
+        /**
+         * Initiates the game by showing the mission selection screen.
+         */
+        function startGameHW() {
+            showScreenHW('missionSelect');
+            renderClientBriefsHW();
+        }
+
+        /**
+         * Selects a mission and transitions to the build phase screen.
+         * @param {string} missionId - The ID of the selected mission.
+         */
+        function selectMissionHW(missionId) {
+            currentGameHW.missionId = missionId;
+            const mission = hardwareMissions.find(m => m.id === missionId);
+            if (mission) {
+                currentMissionBriefElemHW.textContent = mission.brief;
+                currentMissionPrioritiesElemHW.innerHTML = formatPrioritiesHW(mission.priorities);
+                showScreenHW('buildPhase');
+                initializeBuildPhaseHW();
+            }
+        }
+
+        /**
+         * Formats mission priorities into a readable string with stars.
+         * @param {object} priorities - An object containing priority names and their values.
+         * @returns {string} HTML string representing formatted priorities.
+         */
+        function formatPrioritiesHW(priorities) {
+            return Object.entries(priorities)
+                .filter(([, value]) => value > 0)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, value]) => {
+                    const formattedKey = key.replace(/([A-Z])/g, ' $1').trim();
+                    return `<span>${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)}: ${'⭐'.repeat(value)}</span>`;
+                })
+                .join(', ');
+        }
+
+        /**
+         * Renders the client briefs on the mission selection screen.
+         */
+        function renderClientBriefsHW() {
+            clientBriefsContainerHW.innerHTML = '';
+            hardwareMissions.forEach(mission => {
+                const div = document.createElement('div');
+                div.classList.add('client-brief');
+                div.innerHTML = `
+                    <h3>${mission.clientName}</h3>
+                    <p>${mission.brief}</p>
+                    <h4>Priorities:</h4>
+                    <ul>
+                        ${Object.entries(mission.priorities).filter(([, value]) => value > 0).map(([key, value]) => {
+                            const formattedKey = key.replace(/([A-Z])/g, ' $1').trim();
+                            return `<li>${formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1)}: ${'⭐'.repeat(value)}</li>`;
+                        }).join('')}
+                    </ul>
+                    <button data-mission-id="${mission.id}">Select This Mission</button>
+                `;
+                div.querySelector('button').addEventListener('click', (e) => selectMissionHW(e.target.dataset.missionId));
+                clientBriefsContainerHW.appendChild(div);
+            });
+        }
+
+        /**
+         * Initializes the build phase: resets state, starts timer, renders components.
+         */
+        function initializeBuildPhaseHW() {
+            currentGameHW.selectedRig = { cpu: null, gpu: null, ram: null, storage: null, motherboard: null, psu: null, cooling: null };
+            currentGameHW.score = 0;
+            currentGameHW.timeLeft = 180;
+            currentGameHW.quizScore = 0;
+            currentGameHW.scenarioResults = [];
+            currentScoreElemHW.textContent = 0;
+            updateTimerDisplayHW();
+            startTimerHW();
+            renderComponentPaletteHW('cpu'); // Render CPU components by default
+            renderSystemBuilderHW();
+            hintDisplayHW.style.display = 'none';
+            checkProceedToQuizButtonState();
+        }
+
+        /**
+         * Starts the game countdown timer for the build phase.
+         */
+        function startTimerHW() {
+            if (currentGameHW.timerInterval) clearInterval(currentGameHW.timerInterval);
+            currentGameHW.timerInterval = setInterval(() => {
+                currentGameHW.timeLeft--;
+                updateTimerDisplayHW();
+                if (currentGameHW.timeLeft <= 0) {
+                    clearInterval(currentGameHW.timerInterval);
+                    if (currentGameHW.screen === 'buildPhase') {
+                        proceedToQuizHW();
+                    }
+                }
+            }, 1000);
+        }
+
+        /**
+         * Updates the displayed time left.
+         */
+        function updateTimerDisplayHW() {
+            timeLeftElemHW.textContent = currentGameHW.timeLeft;
+        }
+
+        /**
+         * Populates the component palette with draggable hardware components for a given category.
+         * @param {string} activeCategory - The category to display components for.
+         */
+        function renderComponentPaletteHW(activeCategory) {
+            componentListDisplayHW.innerHTML = ''; // Clear previous components
+
+            // Update active tab button
+            document.querySelectorAll('.category-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === activeCategory) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const componentsToDisplay = hardwareComponents[activeCategory];
+            if (componentsToDisplay) {
+                componentsToDisplay.forEach(comp => {
+                    const div = document.createElement('div');
+                    div.classList.add('draggable-component-new');
+                    div.setAttribute('draggable', true);
+                    div.dataset.componentId = comp.id;
+                    div.dataset.category = comp.category;
+                    div.dataset.slot = comp.slot;
+                    div.textContent = comp.name;
+                    div.addEventListener('dragstart', handleDragStartHW);
+                    div.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('remove-component-btn-new')) { // Prevent modal on remove button click
+                            showComponentInfoHW(comp); // Click to show info modal
+                        }
+                    });
+                    componentListDisplayHW.appendChild(div);
+                });
+            }
+        }
+
+        /**
+         * Renders the system builder area with drop zones for each component slot.
+         */
+        function renderSystemBuilderHW() {
+            rigSlotAreasHW.forEach(slotArea => {
+                const category = slotArea.dataset.category;
+                const component = currentGameHW.selectedRig[category];
+                const selectedComponentDiv = slotArea.querySelector('.selected-component-in-rig');
+
+                // Pass the slotArea's data attributes to the update function
+                updateSelectedComponentUIHW(selectedComponentDiv, component);
+
+                // Add drag and drop event listeners if not already added (safe to re-add)
+                slotArea.addEventListener('dragover', handleDragOverHW);
+                slotArea.addEventListener('dragleave', handleDragLeaveHW);
+                slotArea.addEventListener('drop', handleDropHW);
+            });
+            updateScoreHW();
+        }
+
+        /**
+         * Updates the UI of a selected component slot.
+         * @param {HTMLElement} element - The div representing the selected component within a slot.
+         * @param {object|null} component - The component object to display, or null if empty.
+         */
+        function updateSelectedComponentUIHW(element, component) {
+            // Get the slot and category from the element itself (which now has them from HTML)
+            const slotName = element.dataset.slot;
+            const categoryName = element.dataset.category;
+
+            if (component) {
+                element.classList.remove('empty');
+                element.innerHTML = `${component.name} <button class="remove-component-btn-new" data-component-id="${component.id}" data-category="${component.category}">×</button>`;
+                element.querySelector('.remove-component-btn-new').addEventListener('click', handleRemoveComponentHW);
+            } else {
+                element.classList.add('empty');
+                // Ensure slotName is available before using charAt
+                if (slotName) {
+                    element.innerHTML = `Drag ${slotName.charAt(0).toUpperCase() + slotName.slice(1)} Here`;
+                } else {
+                    element.innerHTML = `Drag Component Here`; // Fallback if slotName is somehow missing
+                }
+            }
+            checkProceedToQuizButtonState();
+        }
+
+        /**
+         * Handles the dragstart event for draggable components.
+         * Stores component ID, category, and slot in dataTransfer.
+         * @param {DragEvent} e
+         */
+        function handleDragStartHW(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.componentId);
+            e.dataTransfer.setData('text/category', e.target.dataset.category);
+            e.dataTransfer.setData('text/slot', e.target.dataset.slot);
+            e.target.classList.add('dragging');
+        }
+
+        /**
+         * Handles the dragover event for drop zones.
+         * Prevents default to allow dropping and adds a 'hover' class.
+         * @param {DragEvent} e
+         */
+        function handleDragOverHW(e) {
+            e.preventDefault();
+            const draggedCategory = e.dataTransfer.getData('text/category');
+            const draggedSlot = e.dataTransfer.getData('text/slot');
+            const targetElement = e.target.closest('.rig-slot-area'); // Target the rig-slot-area
+
+            if (targetElement && targetElement.dataset.category === draggedCategory && targetElement.dataset.slot === draggedSlot) {
+                targetElement.classList.add('hover');
+            }
+        }
+
+        /**
+         * Handles the dragleave event for drop zones.
+         * Removes the 'hover' class.
+         * @param {DragEvent} e
+         */
+        function handleDragLeaveHW(e) {
+            e.target.classList.remove('hover');
+        }
+
+        /**
+         * Handles the drop event for drop zones.
+         * Updates game state and refreshes UI.
+         * @param {DragEvent} e
+         */
+        function handleDropHW(e) {
+            e.preventDefault();
+            const dropTargetArea = e.target.closest('.rig-slot-area');
+            if (dropTargetArea) {
+                dropTargetArea.classList.remove('hover');
+            }
+
+            const componentId = e.dataTransfer.getData('text/plain');
+            const componentCategory = e.dataTransfer.getData('text/category');
+            const componentSlot = e.dataTransfer.getData('text/slot');
+
+            const dropTargetCategory = dropTargetArea ? dropTargetArea.dataset.category : null;
+            const dropTargetSlot = dropTargetArea ? dropTargetArea.dataset.slot : null;
+
+            if (componentCategory === dropTargetCategory && componentSlot === dropTargetSlot) {
+                const component = hardwareComponents[componentCategory].find(c => c.id === componentId);
+                if (component) {
+                    currentGameHW.selectedRig[componentCategory] = component;
+                    const selectedComponentDiv = dropTargetArea.querySelector('.selected-component-in-rig');
+                    updateSelectedComponentUIHW(selectedComponentDiv, component);
+                    updateScoreHW();
+                }
+            }
+            document.querySelector('.draggable-component-new.dragging')?.classList.remove('dragging');
+        }
+
+        /**
+         * Handles the click event for the 'remove component' button.
+         * Removes the component from the game state and updates the UI.
+         * @param {MouseEvent} e
+         */
+        function handleRemoveComponentHW(e) {
+            const categoryToRemove = e.target.dataset.category;
+            currentGameHW.selectedRig[categoryToRemove] = null;
+            const targetSlotArea = e.target.closest('.rig-slot-area');
+            if (targetSlotArea) {
+                const selectedComponentDiv = targetSlotArea.querySelector('.selected-component-in-rig');
+                updateSelectedComponentUIHW(selectedComponentDiv, null);
+            }
+            updateScoreHW();
+        }
+
+        /**
+         * Checks if all essential slots are filled to enable the "Proceed to Quiz" button.
+         */
+        function checkProceedToQuizButtonState() {
+            const essentialSlotsFilled =
+                currentGameHW.selectedRig.cpu &&
+                currentGameHW.selectedRig.gpu &&
+                currentGameHW.selectedRig.ram &&
+                currentGameHW.selectedRig.storage &&
+                currentGameHW.selectedRig.motherboard &&
+                currentGameHW.selectedRig.psu &&
+                currentGameHW.selectedRig.cooling;
+
+            proceedToQuizBtnHW.disabled = !essentialSlotsFilled;
+        }
+
+        /**
+         * Aggregates all stats from the currently selected rig components.
+         * @returns {object} An object with aggregated stats.
+         */
+        function aggregateRigStatsHW() {
+            const aggregated = {
+                performance: 0,
+                cost: 0,
+                powerEfficiency: 0,
+                reliability: 0,
+                noise: 0,
+                ramCapacity: 0,
+                storageCapacity: 0,
+                totalPowerDraw: 0 // Renamed from powerDraw to totalPowerDraw for clarity
+            };
+
+            for (const category in currentGameHW.selectedRig) {
+                const component = currentGameHW.selectedRig[category];
+                if (component && component.stats) {
+                    for (const stat in component.stats) {
+                        if (aggregated.hasOwnProperty(stat)) {
+                            aggregated[stat] += component.stats[stat];
+                        }
+                    }
+                    // Handle specific specs for aggregation
+                    if (category === 'ram' && component.specs.capacity) {
+                        aggregated.ramCapacity += parseInt(component.specs.capacity.replace('GB', '').replace('TB', '')) || 0;
+                    }
+                    if (category === 'storage' && component.specs.capacity) {
+                        const capacityStr = component.specs.capacity;
+                        if (capacityStr.includes('TB')) {
+                            aggregated.storageCapacity += parseFloat(capacityStr.replace('TB', '')) * 1000; // Convert TB to GB
+                        } else if (capacityStr.includes('GB')) {
+                            aggregated.storageCapacity += parseFloat(capacityStr.replace('GB', ''));
+                        }
+                    }
+                    // Sum up TDP for CPU and GPU, and add PSU wattage for total power draw
+                    if (category === 'cpu' && component.specs.tdp) {
+                        aggregated.totalPowerDraw += parseInt(component.specs.tdp.replace('W', '')) || 0;
+                    }
+                    if (category === 'gpu' && component.specs.powerDraw) {
+                        // Assuming 'High', 'Moderate', 'Low' translate to some wattage for simplicity
+                        if (component.specs.powerDraw === 'High') aggregated.totalPowerDraw += 250;
+                        else if (component.specs.powerDraw === 'Moderate') aggregated.totalPowerDraw += 150;
+                        else if (component.specs.powerDraw === 'Low') aggregated.totalPowerDraw += 50;
+                    }
+                }
+            }
+            return aggregated;
+        }
+
+        /**
+         * Calculates the current score based on the selected rig and mission priorities.
+         * @returns {number} The calculated score.
+         */
+        function calculateScoreHW() {
+            const mission = hardwareMissions.find(m => m.id === currentGameHW.missionId);
+            if (!mission) return 0;
+
+            const aggregatedStats = aggregateRigStatsHW();
+            let currentScore = 0;
+
+            for (const priority in mission.priorities) {
+                const priorityWeight = mission.priorities[priority];
+                let statValue = aggregatedStats[priority] || 0;
+
+                // Special handling for cost: lower cost is better
+                if (priority === 'cost') {
+                    const MAX_POSSIBLE_AGGREGATED_COST = 25;
+                    statValue = MAX_POSSIBLE_AGGREGATED_COST - statValue;
+                    statValue = Math.max(0, statValue);
+                }
+                // Special handling for noise: lower noise is better
+                else if (priority === 'noise') {
+                    const MAX_POSSIBLE_AGGREGATED_NOISE = 15;
+                    statValue = MAX_POSSIBLE_AGGREGATED_NOISE - statValue;
+                    statValue = Math.max(0, statValue);
+                }
+                // Specific priorities for Data Science Rig
+                else if (priority === 'ramCapacity') {
+                    // This stat is already a direct value (GB), higher is better
+                    statValue = aggregatedStats.ramCapacity;
+                }
+                else if (priority === 'storageCapacity') {
+                    // This stat is already a direct value (GB), higher is better
+                    statValue = aggregatedStats.storageCapacity;
+                }
+
+                currentScore += statValue * priorityWeight;
+            }
+            return Math.round(currentScore);
+        }
+
+        /**
+         * Updates the displayed score.
+         */
+        function updateScoreHW() {
+            currentGameHW.score = calculateScoreHW();
+            currentScoreElemHW.textContent = currentGameHW.score;
+        }
+
+        /**
+         * Displays a random hint relevant to the current mission.
+         */
+        function showHintHW() {
+            const mission = hardwareMissions.find(m => m.id === currentGameHW.missionId);
+            if (mission && mission.hints && mission.hints.length > 0) {
+                const randomHint = mission.hints[Math.floor(Math.random() * mission.hints.length)];
+                hintDisplayHW.textContent = `Hint: ${randomHint}`;
+                hintDisplayHW.style.display = 'block';
+                setTimeout(() => {
+                    hintDisplayHW.style.display = 'none';
+                }, 5000);
+            } else {
+                hintDisplayHW.textContent = "No hints available for this mission right now.";
+                hintDisplayHW.style.display = 'block';
+                setTimeout(() => {
+                    hintDisplayHW.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        /**
+         * Displays a modal with detailed information about a component.
+         * @param {object} component - The component object to display.
+         */
+        function showComponentInfoHW(component) {
+            modalComponentNameHW.textContent = component.name;
+            modalComponentDescriptionHW.textContent = component.description;
+
+            // Populate Uses
+            modalComponentUsesHW.innerHTML = '';
+            if (component.uses && component.uses.length > 0) {
+                component.uses.forEach(use => {
+                    const li = document.createElement('li');
+                    li.textContent = use;
+                    modalComponentUsesHW.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = "No specific uses detailed.";
+                modalComponentUsesHW.appendChild(li);
+            }
+
+            // Populate Specs
+            modalComponentSpecsHW.innerHTML = '';
+            if (component.specs) {
+                for (const spec in component.specs) {
+                    const li = document.createElement('li');
+                    const formattedSpec = spec.replace(/([A-Z])/g, ' $1').trim();
+                    li.textContent = `${formattedSpec.charAt(0).toUpperCase() + formattedSpec.slice(1)}: ${component.specs[spec]}`;
+                    modalComponentSpecsHW.appendChild(li);
+                }
+            } else {
+                const li = document.createElement('li');
+                li.textContent = "No detailed specifications.";
+                modalComponentSpecsHW.appendChild(li);
+            }
+
+            // Populate Stats
+            modalComponentStatsHW.innerHTML = '';
+            for (const stat in component.stats) {
+                const li = document.createElement('li');
+                const formattedStat = stat.replace(/([A-Z])/g, ' $1').trim();
+                let displayValue = '⭐'.repeat(component.stats[stat]);
+                if (stat === 'cost') {
+                    displayValue = '💰'.repeat(component.stats[stat]); // Use money bags for cost
+                }
+                li.textContent = `${formattedStat.charAt(0).toUpperCase() + formattedStat.slice(1)}: ${displayValue}`;
+                modalComponentStatsHW.appendChild(li);
+            }
+
+            componentInfoModalOverlayHW.classList.add('visible');
+        }
+
+        /**
+         * Hides the component information modal.
+         */
+        function hideComponentInfoHW() {
+            componentInfoModalOverlayHW.classList.remove('visible');
+        }
+
+        /**
+         * Proceeds from the build phase to the quiz phase.
+         */
+        function proceedToQuizHW() {
+            clearInterval(currentGameHW.timerInterval);
+            showScreenHW('quiz');
+            renderQuizQuestionsHW();
+        }
+
+        /**
+         * Renders the quiz questions on the quiz screen.
+         */
+        function renderQuizQuestionsHW() {
+            quizQuestionsContainerHW.innerHTML = '';
+            quizQuestions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.classList.add('quiz-question');
+                div.innerHTML = `
+                    <p>${index + 1}. ${q.question}</p>
+                    <div class="quiz-options">
+                        ${q.options.map((option, optIndex) => `
+                            <label>
+                                <input type="radio" name="question-${index}" value="${option}">
+                                <span>${option}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                quizQuestionsContainerHW.appendChild(div);
+            });
+        }
+
+        /**
+         * Submits the quiz, calculates quiz score, and proceeds to rig testing.
+         */
+        function submitQuizHW() {
+            let correctAnswers = 0;
+            quizQuestions.forEach((q, index) => {
+                const selectedOption = document.querySelector(`input[name="question-${index}"]:checked`);
+                if (selectedOption && selectedOption.value === q.answer) {
+                    correctAnswers++;
+                }
+            });
+            currentGameHW.quizScore = correctAnswers * 10;
+
+            currentGameHW.score += currentGameHW.quizScore; // Add quiz score to overall game score
+
+            testRigHW();
+        }
+
+        /**
+         * Tests the built rig against mission requirements and displays results.
+         */
+        function testRigHW() {
+            const mission = hardwareMissions.find(m => m.id === currentGameHW.missionId);
+            const aggregatedStats = aggregateRigStatsHW();
+            currentGameHW.scenarioResults = [];
+
+            const scenarios = [];
+            if (mission.id === 'gaming_pc') {
+                scenarios.push('performance', 'power', 'thermals', 'compatibility');
+            } else if (mission.id === 'office_workstation') {
+                scenarios.push('performance', 'power', 'noise', 'reliability');
+            } else if (mission.id === 'data_science_rig') {
+                scenarios.push('performance', 'power', 'thermals', 'ramCapacity', 'storageCapacity');
+            }
+
+            scenarios.forEach(scenarioType => {
+                let outcome = { success: true, message: "Rig held up well!", scenario: scenarioType };
+                let failureReason = null;
+
+                // Test logic based on scenario and aggregated stats
+                switch (scenarioType) {
+                    case 'performance':
+                        if (aggregatedStats.performance < (mission.priorities.performance * 3)) {
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.performance;
+                        }
+                        break;
+                    case 'power':
+                        // Check if total power draw exceeds PSU wattage. Assume PSU wattage is in specs.wattage
+                        const psuWattage = currentGameHW.selectedRig.psu ? parseInt(currentGameHW.selectedRig.psu.specs.wattage.replace('W', '')) : 0;
+                        if (psuWattage === 0 || aggregatedStats.totalPowerDraw > psuWattage * 0.9) { // 90% utilization limit
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.power;
+                        }
+                        break;
+                    case 'thermals':
+                        // Check if cooling is adequate for CPU/GPU power draw
+                        const cpuTdp = currentGameHW.selectedRig.cpu ? parseInt(currentGameHW.selectedRig.cpu.specs.tdp.replace('W', '')) : 0;
+                        const coolingTdpSupport = currentGameHW.selectedRig.cooling ? (currentGameHW.selectedRig.cooling.specs.tdpSupport === 'High' ? 150 : currentGameHW.selectedRig.cooling.specs.tdpSupport === 'Medium' ? 95 : 65) : 0; // Rough conversion
+                        if (coolingTdpSupport < cpuTdp * 1.1) { // Cooling support should be at least 10% more than CPU TDP
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.thermals;
+                        }
+                        break;
+                    case 'reliability':
+                        if (aggregatedStats.reliability < (mission.priorities.reliability * 3)) {
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.reliability;
+                        }
+                        break;
+                    case 'noise':
+                        // Lower noise stat is better, so if aggregated noise is too high (low score)
+                        if (aggregatedStats.noise < (mission.priorities.noise * 3)) {
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.noise;
+                        }
+                        break;
+                    case 'compatibility':
+                        // Simplified compatibility: if CPU socket doesn't match motherboard socket
+                        const cpuSocket = currentGameHW.selectedRig.cpu ? currentGameHW.selectedRig.cpu.specs.socket : null;
+                        const moboSocket = currentGameHW.selectedRig.motherboard ? currentGameHW.selectedRig.motherboard.specs.socket : null;
+                        if (cpuSocket && moboSocket && !moboSocket.includes(cpuSocket.split('/')[0])) { // Check if mobo supports at least one of CPU's sockets
+                            outcome.success = false;
+                            failureReason = mission.failureMessages.compatibility;
+                        }
+                        break;
+                    case 'ramCapacity':
+                        if (aggregatedStats.ramCapacity < (mission.priorities.ramCapacity * 8)) { // Example: need at least 32GB for high priority
+                            outcome.success = false;
+                            failureReason = "Not enough RAM! Your data models are too big for this memory.";
+                        }
+                        break;
+                    case 'storageCapacity':
+                        if (aggregatedStats.storageCapacity < (mission.priorities.storageCapacity * 500)) { // Example: need at least 2TB for high priority
+                            outcome.success = false;
+                            failureReason = "Insufficient storage! You can't fit all that data on this tiny drive.";
+                        }
+                        break;
+                }
+
+                if (!outcome.success && failureReason) {
+                    outcome.message = failureReason;
+                }
+                currentGameHW.scenarioResults.push(outcome);
+            });
+
+            displayResultsHW();
+        }
+
+        /**
+         * Displays the results of the rig tests on the results screen.
+         */
+        function displayResultsHW() {
+            showScreenHW('results');
+            scenarioResultsContainerHW.innerHTML = '';
+            currentGameHW.scenarioResults.forEach(result => {
+                const div = document.createElement('div');
+                div.classList.add(result.success ? 'success' : 'failure');
+                const formattedScenario = result.scenario.replace(/([A-Z])/g, ' $1').trim().charAt(0).toUpperCase() + result.scenario.slice(1).replace(/([A-Z])/g, ' $1').trim().slice(1);
+                div.innerHTML = `
+                    <h4>Scenario: ${formattedScenario}</h4>
+                    <p>${result.message}</p>
+                `;
+                scenarioResultsContainerHW.appendChild(div);
+            });
+            finalScoreElemHW.textContent = currentGameHW.score;
+        }
+
+        // --- Event Listeners ---
+        startGameBtnHW.addEventListener('click', startGameHW);
+        proceedToQuizBtnHW.addEventListener('click', proceedToQuizHW);
+        hintBtnHW.addEventListener('click', showHintHW);
+        submitQuizBtnHW.addEventListener('click', submitQuizHW);
+        restartGameBtnHW.addEventListener('click', () => {
+            showScreenHW('welcome');
+            if (currentGameHW.timerInterval) clearInterval(currentGameHW.timerInterval);
+        });
+        closeComponentInfoModalBtnHW.addEventListener('click', hideComponentInfoHW);
+
+        // Event listener for category tabs
+        categoryTabsContainerHW.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-tab-btn')) {
+                renderComponentPaletteHW(e.target.dataset.category);
+            }
+        });
+
+        // Initial call to show the welcome screen
+        showScreenHW('welcome');
+    </script>
+</body>
+</html>

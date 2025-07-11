@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packet Quest: The 4-Layer Gauntlet</title>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #2c3e50; /* Dark blue-grey background */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #ecf0f1; /* Light text */
+        }
+
+        /* Game Container */
+        #game-container {
+            background-color: #34495e; /* Slightly lighter dark blue-grey */
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 1000px; /* Optimized for quiz layout */
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #3498db; /* Blue accent border */
+        }
+
+        /* Screen Transitions */
+        .game-screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        }
+
+        .game-screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Buttons - Flat UI style */
+        button {
+            background-color: #3498db; /* Blue */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #2980b9; /* Darker blue */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:disabled {
+            background-color: #7f8c8d; /* Greyed out */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Welcome Screen */
+        #welcome-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        #welcome-screen h1 {
+            font-size: 3em;
+            color: #3498db;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        #welcome-screen p {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            margin-bottom: 30px;
+        }
+
+        /* Game Play Screen */
+        #game-play-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #7f8c8d;
+        }
+
+        .game-stats {
+            font-weight: bold;
+            color: #ecf0f1;
+            font-size: 1.1em;
+            background-color: #2c3e50;
+            border-radius: 8px;
+            padding: 10px 15px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Layer Visualization */
+        #layer-display-area {
+            background-color: #2c3e50;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--layer-color, #7f8c8d); /* Dynamic border color */
+            box-shadow: 0 0 15px rgba(var(--layer-rgb, 127, 140, 141), 0.5); /* Dynamic glow */
+        }
+
+        #current-layer-name {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--layer-color, #3498db);
+            margin-bottom: 10px;
+        }
+
+        #current-layer-description {
+            font-size: 1em;
+            color: #bdc3c7;
+            max-width: 80%;
+            margin-bottom: 15px;
+        }
+
+        #packet-animation {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background-color: #f1c40f; /* Yellow packet */
+            border-radius: 4px;
+            left: 0%;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: left 1s ease-in-out;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.8);
+        }
+
+        /* Quiz Section */
+        #quiz-section {
+            background-color: #34495e;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #question-text {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #ecf0f1;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-button {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px 20px;
+            border: 1px solid #7f8c8d;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .option-button:hover:not(:disabled) {
+            background-color: #34495e;
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .option-button.correct {
+            background-color: #27ae60; /* Green for correct */
+            border-color: #2ecc71;
+            color: white;
+        }
+
+        .option-button.incorrect {
+            background-color: #e74c3c; /* Red for incorrect */
+            border-color: #c0392b;
+            color: white;
+        }
+
+        .option-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #feedback-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #feedback-popup-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .feedback-popup {
+            background-color: #34495e;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            border: 2px solid #3498db;
+        }
+
+        #feedback-popup-overlay.visible .feedback-popup {
+            transform: scale(1);
+        }
+
+        .feedback-popup h3 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .feedback-popup p {
+            font-size: 1.1em;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .feedback-popup button {
+            margin-top: 0;
+        }
+
+        #hint-display {
+            background-color: #2c3e50;
+            border: 1px solid #f1c40f; /* Yellow accent */
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #f1c40f;
+            font-size: 1em;
+            font-weight: 500;
+            display: none;
+            animation: slideInTop 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+        }
+
+        @keyframes slideInTop {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Results Screen */
+        #results-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        #results-screen h2 {
+            font-size: 2.8em;
+            color: #2ecc71; /* Green for victory */
+            margin-bottom: 20px;
+            text-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+        }
+
+        #results-screen p {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            margin-bottom: 10px;
+        }
+
+        #final-score {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+            margin-top: 20px;
+            display: block;
+        }
+
+        #bonus-facts {
+            background-color: #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+            border: 1px solid #3498db;
+        }
+
+        #bonus-facts h4 {
+            color: #3498db;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #bonus-facts ul {
+            list-style-type: disc;
+            padding-left: 25px;
+            color: #bdc3c7;
+        }
+
+        #bonus-facts ul li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .game-stats {
+                width: 100%;
+                text-align: center;
+                margin-top: 15px;
+            }
+            #question-text {
+                font-size: 1.2em;
+            }
+            .option-button {
+                font-size: 1em;
+                padding: 12px 15px;
+            }
+            button {
+                width: 100%;
+                padding: 12px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="game-screen active">
+            <h1>Packet Quest: The 4-Layer Gauntlet</h1>
+            <p>Guide your data packet through the TCP/IP layers by answering layer-specific questions. Every correct answer moves you closer to your destination, but wrong answers can cause delays or even packet loss!</p>
+            <button id="start-game-pq-btn">Start Packet Quest</button>
+        </div>
+
+        <!-- Game Play Screen -->
+        <div id="game-play-screen" class="game-screen">
+            <div class="header-bar">
+                <div class="game-stats">
+                    Score: <span id="current-score-pq">0</span> | Time Left: <span id="time-left-pq">120</span>s | Lives: <span id="lives-pq">3</span>
+                </div>
+                <button id="hint-btn-pq">Get a Hint</button>
+            </div>
+
+            <div id="layer-display-area">
+                <div id="packet-animation"></div>
+                <h2 id="current-layer-name"></h2>
+                <p id="current-layer-description"></p>
+            </div>
+
+            <div id="quiz-section">
+                <p id="question-text"></p>
+                <div class="options-container" id="options-container">
+                    <!-- Options will be dynamically loaded here -->
+                </div>
+            </div>
+            <div id="hint-display" class="hint-box"></div>
+        </div>
+
+        <!-- Feedback Popup Overlay -->
+        <div id="feedback-popup-overlay">
+            <div class="feedback-popup">
+                <h3 id="feedback-title"></h3>
+                <p id="feedback-message"></p>
+                <button id="next-question-btn">Next</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="game-screen">
+            <h2></h2> <!-- Will be "Victory!" or "Packet Lost!" -->
+            <p>Your packet's journey has concluded!</p>
+            <p>Final Score: <span id="final-score-pq"></span></p>
+            <div id="bonus-facts">
+                <h4>Bonus Facts Unlocked!</h4>
+                <ul id="bonus-facts-list">
+                    <li>Port 80 is used for HTTP because it's the default and well-known port for web traffic.</li>
+                    <li>The 'ping' command uses ICMP to test network connectivity.</li>
+                    <li>MAC addresses are 'burned-in' to your network adapter by the manufacturer.</li>
+                    <li>UDP is often used for real-time applications like voice and video calls because it prioritizes speed over guaranteed delivery.</li>
+                    <li>TCP uses a 'three-way handshake' to establish a connection before sending data.</li>
+                </ul>
+            </div>
+            <button id="restart-game-pq-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Data ---
+        const tcpIpLayers = [
+            {
+                id: 'network_access',
+                name: 'Network Access Layer',
+                description: 'This is where your packet first touches the physical network. It handles the physical transmission of data and the local network addressing (MAC addresses).',
+                color: '#FF6F61', // Coral
+                rgb: '255, 111, 97'
+            },
+            {
+                id: 'internet',
+                name: 'Internet Layer',
+                description: 'Now your packet is ready to travel across different networks! This layer handles logical addressing (IP addresses) and routing decisions to find the best path to the destination.',
+                color: '#6B5B95', // Purple
+                rgb: '107, 91, 149'
+            },
+            {
+                id: 'transport',
+                name: 'Transport Layer',
+                description: 'Your packet is almost there! This layer manages end-to-end communication, ensuring data is delivered reliably (TCP) or quickly (UDP) to the correct application on the destination device, using port numbers.',
+                color: '#88B04B', // Green
+                rgb: '136, 176, 75'
+            },
+            {
+                id: 'application',
+                name: 'Application Layer',
+                description: 'Congratulations! Your packet has reached the destination application. This layer provides network services directly to end-user applications, using protocols like HTTP, FTP, and DNS.',
+                color: '#F7CAC9', // Pink
+                rgb: '247, 202, 201'
+            }
+        ];
+
+        const packetQuestQuestions = {
+            network_access: [
+                {
+                    question: "What type of address uniquely identifies a network interface card (NIC) on a local network?",
+                    options: ["IP Address", "Port Number", "MAC Address", "Domain Name"],
+                    answer: "MAC Address",
+                    explanation: "A MAC (Media Access Control) address is a unique hardware identifier assigned to network interfaces for communications within a network segment. It's used for local network communication."
+                },
+                {
+                    question: "Which common networking technology operates at the Network Access Layer and uses frames?",
+                    options: ["Wi-Fi", "Ethernet", "Bluetooth", "Fiber Optic"],
+                    answer: "Ethernet",
+                    explanation: "Ethernet is a widely used wired networking technology that defines how data is formatted into frames for transmission over a local area network. It's a key technology at this layer."
+                },
+                {
+                    question: "At the Network Access Layer, data is typically encapsulated into what unit?",
+                    options: ["Segments", "Packets", "Datagrams", "Frames"],
+                    answer: "Frames",
+                    explanation: "The Network Access Layer (also known as the Data Link Layer) takes packets from the Internet Layer and encapsulates them into frames for transmission over the physical medium."
+                }
+            ],
+            internet: [
+                {
+                    question: "What does an IP address primarily identify?",
+                    options: ["A specific application", "A physical network interface", "A device on a network", "A web page"],
+                    answer: "A device on a network",
+                    explanation: "An IP (Internet Protocol) address is a numerical label assigned to each device connected to a computer network that uses the Internet Protocol for communication. It identifies the device's location on the network for routing purposes."
+                },
+                {
+                    question: "Which protocol is responsible for routing packets between different networks?",
+                    options: ["TCP", "UDP", "IP", "ARP"],
+                    answer: "IP",
+                    explanation: "The Internet Protocol (IP) is the primary protocol at the Internet Layer, responsible for addressing and routing packets so they can traverse multiple networks to reach their destination. It's the core of internetworking."
+                },
+                {
+                    question: "Which protocol is used for sending error messages and operational information, like when a host or router cannot be reached?",
+                    options: ["HTTP", "FTP", "ICMP", "DNS"],
+                    answer: "ICMP",
+                    explanation: "ICMP (Internet Control Message Protocol) is used by network devices to send error messages and operational information, often used by the 'ping' and 'traceroute' commands to diagnose network issues."
+                }
+            ],
+            transport: [
+                {
+                    question: "Which Transport Layer protocol provides reliable, ordered, and error-checked delivery of a stream of bytes between applications?",
+                    options: ["UDP", "IP", "TCP", "ICMP"],
+                    answer: "TCP",
+                    explanation: "TCP (Transmission Control Protocol) establishes a connection, ensures data arrives in order, and retransmits lost packets, providing reliable delivery. It's like sending a registered letter."
+                },
+                {
+                    question: "Which Transport Layer protocol is connectionless and prioritizes speed over reliability, often used for streaming media?",
+                    options: ["TCP", "UDP", "HTTP", "FTP"],
+                    answer: "UDP",
+                    explanation: "UDP (User Datagram Protocol) is a lightweight, connectionless protocol that offers faster transmission by not guaranteeing delivery or order. It's ideal for real-time applications where occasional packet loss is acceptable, like live video or online gaming."
+                },
+                {
+                    question: "What numerical identifier is used by the Transport Layer to direct data to a specific application or service on a device?",
+                    options: ["IP Address", "MAC Address", "Port Number", "Socket ID"],
+                    answer: "Port Number",
+                    explanation: "Port numbers are used to identify specific applications or services running on a network device (e.g., web server, email client), allowing the Transport Layer to deliver data to the correct recipient process."
+                }
+            ],
+            application: [
+                {
+                    question: "Which protocol is used for web browsing and retrieving web pages from a server?",
+                    options: ["FTP", "SMTP", "HTTP", "DNS"],
+                    answer: "HTTP",
+                    explanation: "HTTP (Hypertext Transfer Protocol) is the foundation of data communication for the World Wide Web, used for loading web pages and other web content."
+                },
+                {
+                    question: "Which protocol is primarily used for sending email messages from a client to a server or between servers?",
+                    options: ["POP3", "IMAP", "SMTP", "Telnet"],
+                    answer: "SMTP",
+                    explanation: "SMTP (Simple Mail Transfer Protocol) is the standard protocol for sending email across the internet. POP3 and IMAP are used for retrieving email."
+                },
+                {
+                    question: "What protocol translates human-readable domain names (like google.com) into numerical IP addresses that computers can understand?",
+                    options: ["HTTP", "FTP", "DNS", "DHCP"],
+                    answer: "DNS",
+                    explanation: "DNS (Domain Name System) acts like the internet's phonebook, translating domain names (which are easy for humans to remember) into IP addresses (which computers use to locate devices)."
+                }
+            ]
+        };
+
+        // --- Game State Variables ---
+        let currentGamePQ = {
+            screen: 'welcome',
+            currentLayerIndex: 0,
+            currentQuestionIndex: 0,
+            score: 0,
+            timeLeft: 120, // 2 minutes for the whole game
+            lives: 3,
+            timerInterval: null,
+            questionsAnsweredInLayer: 0, // Track questions answered in current layer
+            wrongAnswersInRow: 0 // Track consecutive wrong answers for penalties
+        };
+
+        // --- DOM Elements ---
+        const screensPQ = {
+            welcome: document.getElementById('welcome-screen'),
+            gamePlay: document.getElementById('game-play-screen'),
+            results: document.getElementById('results-screen')
+        };
+
+        const startGameBtnPQ = document.getElementById('start-game-pq-btn');
+        const currentScoreElemPQ = document.getElementById('current-score-pq');
+        const timeLeftElemPQ = document.getElementById('time-left-pq');
+        const livesElemPQ = document.getElementById('lives-pq');
+        const hintBtnPQ = document.getElementById('hint-btn-pq');
+        const hintDisplayPQ = document.getElementById('hint-display');
+
+        const layerDisplayArea = document.getElementById('layer-display-area');
+        const packetAnimation = document.getElementById('packet-animation');
+        const currentLayerName = document.getElementById('current-layer-name');
+        const currentLayerDescription = document.getElementById('current-layer-description');
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        const feedbackPopupOverlay = document.getElementById('feedback-popup-overlay');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+
+        const resultsScreenTitle = document.querySelector('#results-screen h2');
+        const finalScoreElemPQ = document.getElementById('final-score-pq');
+        const restartGameBtnPQ = document.getElementById('restart-game-pq-btn');
+        const bonusFactsList = document.getElementById('bonus-facts-list');
+
+
+        // --- Game Functions ---
+
+        /**
+         * Switches the active screen displayed to the user.
+         * @param {string} screenName - The ID of the screen to show (e.g., 'welcome', 'gamePlay').
+         */
+        function showScreenPQ(screenName) {
+            Object.values(screensPQ).forEach(screen => screen.classList.remove('active'));
+            screensPQ[screenName].classList.add('active');
+            currentGamePQ.screen = screenName;
+        }
+
+        /**
+         * Initializes and starts a new game.
+         */
+        function startGamePQ() {
+            // Reset game state
+            currentGamePQ = {
+                screen: 'gamePlay',
+                currentLayerIndex: 0,
+                currentQuestionIndex: 0,
+                score: 0,
+                timeLeft: 120, // 2 minutes
+                lives: 3,
+                timerInterval: null,
+                questionsAnsweredInLayer: 0,
+                wrongAnswersInRow: 0
+            };
+            updateGameStatsUI();
+            showScreenPQ('gamePlay');
+            startTimerPQ();
+            loadLayerPQ(currentGamePQ.currentLayerIndex);
+        }
+
+        /**
+         * Starts the game countdown timer.
+         */
+        function startTimerPQ() {
+            if (currentGamePQ.timerInterval) clearInterval(currentGamePQ.timerInterval);
+            currentGamePQ.timerInterval = setInterval(() => {
+                currentGamePQ.timeLeft--;
+                updateGameStatsUI();
+                if (currentGamePQ.timeLeft <= 0) {
+                    clearInterval(currentGamePQ.timerInterval);
+                    endGamePQ(false); // Packet timed out
+                }
+            }, 1000);
+        }
+
+        /**
+         * Updates the score, time, and lives displays.
+         */
+        function updateGameStatsUI() {
+            currentScoreElemPQ.textContent = currentGamePQ.score;
+            timeLeftElemPQ.textContent = currentGamePQ.timeLeft;
+            livesElemPQ.textContent = currentGamePQ.lives;
+        }
+
+        /**
+         * Loads and displays information for the current TCP/IP layer.
+         * @param {number} layerIndex - The index of the layer to load.
+         */
+        function loadLayerPQ(layerIndex) {
+            if (layerIndex >= tcpIpLayers.length) {
+                endGamePQ(true); // All layers completed, victory!
+                return;
+            }
+
+            const layer = tcpIpLayers[layerIndex];
+            currentLayerName.textContent = layer.name;
+            currentLayerDescription.textContent = layer.description;
+
+            // Set dynamic CSS variables for layer color
+            layerDisplayArea.style.setProperty('--layer-color', layer.color);
+            layerDisplayArea.style.setProperty('--layer-rgb', layer.rgb);
+
+            // Reset question state for the new layer
+            currentGamePQ.currentQuestionIndex = 0;
+            currentGamePQ.questionsAnsweredInLayer = 0;
+            currentGamePQ.wrongAnswersInRow = 0; // Reset consecutive wrong answers
+
+            // Animate packet arrival
+            packetAnimation.style.left = '0%';
+            setTimeout(() => {
+                packetAnimation.style.left = '50%';
+            }, 100); // Small delay for effect
+
+            // Load the first question for this layer after a brief pause
+            setTimeout(() => {
+                loadQuestionPQ();
+            }, 1000); // Allow time for layer info to register
+        }
+
+        /**
+         * Loads and displays the current question and its options.
+         */
+        function loadQuestionPQ() {
+            const currentLayerId = tcpIpLayers[currentGamePQ.currentLayerIndex].id;
+            const questionsForLayer = packetQuestQuestions[currentLayerId];
+
+            if (currentGamePQ.currentQuestionIndex >= questionsForLayer.length) {
+                // All questions for this layer answered, move to next layer
+                currentGamePQ.currentLayerIndex++;
+                loadLayerPQ(currentGamePQ.currentLayerIndex);
+                return;
+            }
+
+            const questionData = questionsForLayer[currentGamePQ.currentQuestionIndex];
+            questionText.textContent = questionData.question;
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            questionData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswerPQ(button, option, questionData.answer, questionData.explanation));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Checks the user's answer, updates score, and shows feedback.
+         * @param {HTMLElement} selectedButton - The button element clicked by the user.
+         * @param {string} selectedOption - The text of the option selected.
+         * @param {string} correctAnswer - The correct answer for the question.
+         * @param {string} explanation - The explanation for the answer.
+         */
+        function checkAnswerPQ(selectedButton, selectedOption, correctAnswer, explanation) {
+            // Disable all options to prevent multiple clicks
+            Array.from(optionsContainer.children).forEach(button => button.disabled = true);
+
+            if (selectedOption === correctAnswer) {
+                selectedButton.classList.add('correct');
+                currentGamePQ.score += 10;
+                currentGamePQ.wrongAnswersInRow = 0; // Reset consecutive wrong answers
+                feedbackTitle.textContent = "Correct!";
+                feedbackMessage.textContent = explanation;
+            } else {
+                selectedButton.classList.add('incorrect');
+                // Highlight the correct answer
+                Array.from(optionsContainer.children).find(btn => btn.textContent === correctAnswer)?.classList.add('correct');
+                currentGamePQ.score = Math.max(0, currentGamePQ.score - 5); // Score cannot go below 0
+                currentGamePQ.wrongAnswersInRow++; // Increment consecutive wrong answers
+                feedbackTitle.textContent = "Incorrect!";
+                feedbackMessage.textContent = `The correct answer was: "${correctAnswer}". ${explanation}`;
+            }
+
+            updateGameStatsUI();
+            showFeedbackPopupPQ();
+        }
+
+        /**
+         * Displays the feedback popup after an answer is checked.
+         */
+        function showFeedbackPopupPQ() {
+            feedbackPopupOverlay.classList.add('visible');
+            nextQuestionBtn.onclick = () => {
+                feedbackPopupOverlay.classList.remove('visible');
+                handleConsequencesPQ(); // Check for penalties after feedback
+            };
+        }
+
+        /**
+         * Handles game consequences based on wrong answers.
+         */
+        function handleConsequencesPQ() {
+            if (currentGamePQ.wrongAnswersInRow >= 2) {
+                // "Network Congestion Zone" - lose 5 seconds
+                currentGamePQ.timeLeft = Math.max(0, currentGamePQ.timeLeft - 5);
+                updateGameStatsUI();
+                // Reset consecutive wrong answers after penalty applied
+                currentGamePQ.wrongAnswersInRow = 0;
+                // For now, just proceed to next question. Could add a specific popup here.
+            }
+
+            // Check for specific layer penalties
+            const currentLayerId = tcpIpLayers[currentGamePQ.currentLayerIndex].id;
+            if (currentLayerId === 'internet' && !feedbackTitle.textContent.includes("Correct!")) {
+                 // If wrong at Internet Layer, retry the last question
+                 // No need to increment currentQuestionIndex, it stays on the same question
+                 feedbackTitle.textContent = "Lost in Routing!";
+                 feedbackMessage.textContent = "Your packet got lost! Retry this question.";
+                 showFeedbackPopupPQ(); // Show popup again for retry
+                 // Re-enable options for retry
+                 Array.from(optionsContainer.children).forEach(button => {
+                     button.disabled = false;
+                     button.classList.remove('correct', 'incorrect');
+                 });
+                 return; // Don't proceed to next question yet
+            }
+
+
+            // Check for total packet loss (too many wrong answers / lives)
+            if (!feedbackTitle.textContent.includes("Correct!")) { // Only lose a life if answer was incorrect
+                currentGamePQ.lives--;
+                updateGameStatsUI();
+                if (currentGamePQ.lives <= 0) {
+                    endGamePQ(false); // Packet lost!
+                    return;
+                }
+            }
+
+            // Proceed to the next question in the current layer
+            currentGamePQ.currentQuestionIndex++;
+            loadQuestionPQ();
+        }
+
+
+        /**
+         * Ends the game and displays results.
+         * @param {boolean} victory - True if the player won, false if lost.
+         */
+        function endGamePQ(victory) {
+            clearInterval(currentGamePQ.timerInterval); // Stop the timer
+
+            showScreenPQ('results');
+            if (victory) {
+                resultsScreenTitle.textContent = "Victory! Data Hero!";
+                resultsScreenTitle.style.color = '#2ecc71'; // Green
+                currentGamePQ.score += currentGamePQ.timeLeft; // Add remaining time to score
+            } else {
+                resultsScreenTitle.textContent = "Packet Lost! Mission Failed!";
+                resultsScreenTitle.style.color = '#e74c3c'; // Red
+            }
+            finalScoreElemPQ.textContent = currentGamePQ.score;
+        }
+
+        /**
+         * Displays a random hint.
+         */
+        function showHintPQ() {
+            const hints = [
+                "The Network Access Layer deals with physical connections and MAC addresses.",
+                "The Internet Layer is all about IP addresses and routing packets across networks.",
+                "The Transport Layer handles end-to-end communication, either reliably (TCP) or fast (UDP).",
+                "The Application Layer is where user-facing protocols like HTTP, FTP, and DNS live.",
+                "Remember: TCP is like a phone call (connection-oriented), UDP is like sending a postcard (connectionless).",
+                "IP addresses identify devices, MAC addresses identify network cards.",
+                "Port numbers tell data which application to go to."
+            ];
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            hintDisplayPQ.textContent = `Hint: ${randomHint}`;
+            hintDisplayPQ.style.display = 'block';
+            setTimeout(() => {
+                hintDisplayPQ.style.display = 'none';
+            }, 5000);
+        }
+
+        // --- Event Listeners ---
+        startGameBtnPQ.addEventListener('click', startGamePQ);
+        hintBtnPQ.addEventListener('click', showHintPQ);
+        restartGameBtnPQ.addEventListener('click', startGamePQ); // Restart game on button click
+
+        // Initial call to show the welcome screen
+        showScreenPQ('welcome');
+    </script>
+</body>
+</html>
